@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-CurrencyExchangeApplication<currency-exchange>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.draganovik.currencyexchange.CurrencyExchangeApplication",
+      "projectName": "currency-exchange",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
