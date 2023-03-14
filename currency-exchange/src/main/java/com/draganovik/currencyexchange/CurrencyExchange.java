@@ -20,12 +20,14 @@ public class CurrencyExchange {
     @Transient
     private String environment;
 
-    public CurrencyExchange() {
-
-    }
+    public CurrencyExchange() { }
 
     public CurrencyExchange(long id, String from, String to, BigDecimal conversionMultiple, String envirovement) {
-
+        setId(id);
+        setFrom(from);
+        setTo(to);
+        setConversionMultiple(conversionMultiple);
+        setEnvironment(envirovement);
     }
 
     public String getFrom() {
