@@ -13,7 +13,8 @@ public class CurrencyConversion {
     private double quantity;
     private BigDecimal conversionTotal;
 
-    public CurrencyConversion() { }
+    public CurrencyConversion() {
+    }
 
     public CurrencyConversion(long id, String from, String to, BigDecimal conversionMultiple, String envirovement, double quantity, BigDecimal conversionTotal) {
         setId(id);
@@ -25,20 +26,20 @@ public class CurrencyConversion {
         setConversionTotal(conversionTotal);
     }
 
-    public void setQuantity(double quantity) {
-        this.quantity = quantity;
+    public BigDecimal getConversionTotal() {
+        return conversionTotal;
     }
 
     public void setConversionTotal(BigDecimal conversionTotal) {
         this.conversionTotal = conversionTotal;
     }
 
-    public BigDecimal getConversionTotal() {
-        return conversionTotal;
-    }
-
     public double getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 
     public String getFrom() {

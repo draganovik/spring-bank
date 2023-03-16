@@ -1,13 +1,13 @@
 package com.draganovik.currencyconversion;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
 
 @RestController
 public class CurrencyConversionController {
@@ -18,13 +18,13 @@ public class CurrencyConversionController {
         uriVariables.put("from", from);
         uriVariables.put("to", to);
         ResponseEntity<CurrencyConversion> respose =
-            new RestTemplate().getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}", CurrencyConversion.class, uriVariables);
+                new RestTemplate().getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}", CurrencyConversion.class, uriVariables);
 
         // return respose.getBody();
 
         CurrencyConversion cc = respose.getBody();
 
-        if(cc == null) {
+        if (cc == null) {
             return ResponseEntity.badRequest().body(null);
         }
 
