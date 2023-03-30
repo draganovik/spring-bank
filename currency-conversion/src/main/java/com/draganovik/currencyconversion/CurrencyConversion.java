@@ -4,41 +4,27 @@ import java.math.BigDecimal;
 
 public class CurrencyConversion {
 
-    private long id;
+    // atributi kao kod CurrencyExchange klase
     private String from;
     private String to;
     private BigDecimal conversionMultiple;
     private String environment;
 
-    private double quantity;
+    // Specificno za CurrencyConversion
     private BigDecimal conversionTotal;
+    private Double quantity;
 
     public CurrencyConversion() {
+
     }
 
-    public CurrencyConversion(long id, String from, String to, BigDecimal conversionMultiple, String envirovement, double quantity, BigDecimal conversionTotal) {
-        setId(id);
-        setFrom(from);
-        setTo(to);
-        setConversionMultiple(conversionMultiple);
-        setEnvironment(envirovement);
-        setQuantity(quantity);
-        setConversionTotal(conversionTotal);
-    }
-
-    public BigDecimal getConversionTotal() {
-        return conversionTotal;
-    }
-
-    public void setConversionTotal(BigDecimal conversionTotal) {
+    public CurrencyConversion(String from, String to, BigDecimal conversionMultiple, String environment,
+                              Double quantity, BigDecimal conversionTotal) {
+        this.from = from;
+        this.to = to;
+        this.conversionMultiple = conversionMultiple;
+        this.environment = environment;
         this.conversionTotal = conversionTotal;
-    }
-
-    public double getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
@@ -74,12 +60,21 @@ public class CurrencyConversion {
         this.environment = environment;
     }
 
-    public long getId() {
-        return id;
+    public BigDecimal getConversionTotal() {
+        return conversionTotal;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setConversionTotal(BigDecimal conversionTotal) {
+        this.conversionTotal = conversionTotal;
     }
+
+    public Double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Double quantity) {
+        this.quantity = quantity;
+    }
+
 }
 
