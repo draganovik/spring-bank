@@ -15,8 +15,8 @@
     <name>currency-exchange</name>
     <description>Demo project for Spring Boot</description>
     <properties>
-        <java.version>17</java.version>
-        <spring-cloud.version>2022.0.1</spring-cloud.version>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>2022.0.3</spring-cloud.version>
     </properties>
     <dependencies>
         <dependency>
