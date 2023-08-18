@@ -35,6 +35,36 @@ services:
     networks:
       - currency-network
 
+  currency-exchange:
+    image: draganovik/currency-exchange:latest
+    build:
+      context: ./currency-exchange
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  currency-conversion:
+    image: draganovik/currency-conversion:latest
+    build:
+      context: ./currency-conversion
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
   bank-account:
     image: draganovik/bank-account:latest
     build:
