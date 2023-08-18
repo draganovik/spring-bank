@@ -73,10 +73,8 @@ public class CurrencyConversionController {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<String> handleMissingParams(MissingServletRequestParameterException ex) {
-        String parameter = ex.getParameterName();
-        //return ResponseEntity.status(ex.getStatusCode()).body(ex.getMessage());
-        return ResponseEntity.status(ex.getStatusCode()).body("Value [" + ex.getParameterType() + "] of parameter [" + parameter + "] has been ommited");
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String errorMessage = "Required parameter is missing: " + ex.getParameterName();
+        return new ResponseEntity<>(errorMessage, status);
     }
-
-
 }
