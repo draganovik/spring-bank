@@ -12,6 +12,7 @@ public class ApiGatewayConfiguration {
     @Bean
     public RouteLocator gatewayRouter(RouteLocatorBuilder builder) {
         RouteLocatorBuilder.Builder rlb = builder.routes();
+        ServiceRoutes.mapRoutesUserService(rlb);
         ServiceRoutes.mapRoutesBankAccount(rlb);
         ServiceRoutes.mapRoutesCurrencyConversion(rlb);
         ServiceRoutes.mapRoutesCurrencyExchange(rlb);

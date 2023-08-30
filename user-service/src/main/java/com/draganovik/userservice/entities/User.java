@@ -3,9 +3,15 @@ package com.draganovik.userservice.entities;
 import javax.persistence.*;
 
 @Entity(name = "users")
+@Table(indexes = @Index(columnList = "email"))
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Basic(optional = false)
+    @Column(unique = true, nullable = false)
     private String email;
     @Basic(optional = false)
     private String password;
@@ -25,6 +31,11 @@ public class User {
         setPassword(password);
         setRole(role);
         setEnvironment(environment);
+    }
+
+    public User(Long id, String email, String password, Role role, String environment) {
+        this(email, password, role, environment);
+        setId(id);
     }
 
     public String getEnvironment() {
@@ -57,6 +68,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
 

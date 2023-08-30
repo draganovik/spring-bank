@@ -3,6 +3,11 @@ package com.draganovik.apigateway;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 
 public class ServiceRoutes {
+
+    public static void mapRoutesUserService(RouteLocatorBuilder.Builder rlb) {
+        rlb.route(p -> p.path("/user-service/**").uri("lb://user-service"));
+    }
+
     public static void mapRoutesBankAccount(RouteLocatorBuilder.Builder rlb) {
         rlb.route(p -> p.path("/bank-account/**").uri("lb://bank-account"));
     }
