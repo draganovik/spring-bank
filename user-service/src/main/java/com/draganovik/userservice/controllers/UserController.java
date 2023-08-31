@@ -89,7 +89,7 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            if (operatorRole == Role.OWNER) {
+            if (operatorRole == Role.OWNER || operatorRole ==  Role.ADMIN) {
                 List<User> users = userRepository.findAll();
                 return new ResponseEntity<>(users, HttpStatus.OK);
             }

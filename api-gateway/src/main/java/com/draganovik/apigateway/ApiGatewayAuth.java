@@ -35,6 +35,7 @@ public class ApiGatewayAuth {
 
                 .pathMatchers("/user-service/register").permitAll()
                 .pathMatchers("/user-service/validate").permitAll() // Do not change, will cause an inf loop
+                .pathMatchers(HttpMethod.GET, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.POST, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.PUT, "/user-service/users/{email}").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.DELETE, "/user-service/users/{email}").hasAnyRole("OWNER")
