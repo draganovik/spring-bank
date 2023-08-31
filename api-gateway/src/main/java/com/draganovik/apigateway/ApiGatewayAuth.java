@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
@@ -29,8 +30,9 @@ public class ApiGatewayAuth {
                 .pathMatchers("/user-service/validate").permitAll()
                 .pathMatchers("/user-service/users").hasAnyRole("ADMIN", "OWNER")
 
-                .and().httpBasic().and()
-                .addFilterAfter(new JwtAuthenticationFilter(webClientBuilder), SecurityWebFiltersOrder.AUTHORIZATION)
+                .and()
+                .securityContextRepository(new WebSessionServerSecurityContextRepository())
+                .addFilterBefore(new JwtAuthenticationFilter(webClientBuilder), SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange();
         return http.build();
     }

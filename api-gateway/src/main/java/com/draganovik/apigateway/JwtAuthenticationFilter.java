@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -49,7 +50,12 @@ public class JwtAuthenticationFilter implements WebFilter {
                             .request(r -> r.header("X-User-Email", validationResponse.getEmail())
                                     .header("X-User-Role", validationResponse.getRole().name()))
                             .build();
-                    return chain.filter(mutatedExchange);
+                    return mutatedExchange.getSession()
+                            .flatMap(webSession -> {
+                                webSession.getAttributes().put("SPRING_SECURITY_CONTEXT", new SecurityContextImpl(authentication));
+                                return chain.filter(mutatedExchange);
+                            })
+                            .onErrorResume(e -> chain.filter(exchange));
                 })
                 .onErrorResume(e -> chain.filter(exchange));
     }
