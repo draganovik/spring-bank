@@ -1,5 +1,6 @@
-package com.draganovik.apigateway;
+package com.draganovik.apigateway.configurations;
 
+import com.draganovik.apigateway.authmethods.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

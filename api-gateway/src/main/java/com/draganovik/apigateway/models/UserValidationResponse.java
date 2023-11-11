@@ -1,7 +1,5 @@
 package com.draganovik.apigateway.models;
 
-import com.draganovik.apigateway.Role;
-
 public class UserValidationResponse {
     private String email;
     private Role role;

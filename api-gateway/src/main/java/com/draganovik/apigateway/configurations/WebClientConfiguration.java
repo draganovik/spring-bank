@@ -1,4 +1,4 @@
-package com.draganovik.apigateway;
+package com.draganovik.apigateway.configurations;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

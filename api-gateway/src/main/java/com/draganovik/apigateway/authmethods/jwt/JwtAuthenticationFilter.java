@@ -1,4 +1,4 @@
-package com.draganovik.apigateway;
+package com.draganovik.apigateway.authmethods.jwt;
 
 import com.draganovik.apigateway.models.UserValidationResponse;
 import org.springframework.http.HttpHeaders;

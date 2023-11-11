@@ -1,4 +1,4 @@
-package com.draganovik.apigateway;
+package com.draganovik.apigateway.authmethods.jwt;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
