@@ -7,15 +7,15 @@ import org.springframework.context.annotation.Configuration;
 
 //@ImportAutoConfiguration({RouteLocatorBuilder.class, PathRoutePredicateFactory.class, RewritePathGatewayFilterFactory.class})
 @Configuration
-public class ApiGatewayConfiguration {
+public class GatewayRouterConfiguration {
 
     @Bean
     public RouteLocator gatewayRouter(RouteLocatorBuilder builder) {
         RouteLocatorBuilder.Builder rlb = builder.routes();
-        ServiceRoutes.mapRoutesUserService(rlb);
-        ServiceRoutes.mapRoutesBankAccount(rlb);
-        ServiceRoutes.mapRoutesCurrencyConversion(rlb);
-        ServiceRoutes.mapRoutesCurrencyExchange(rlb);
+        GatewayRouteMapper.mapRoutesUserService(rlb);
+        GatewayRouteMapper.mapRoutesBankAccount(rlb);
+        GatewayRouteMapper.mapRoutesCurrencyConversion(rlb);
+        GatewayRouteMapper.mapRoutesCurrencyExchange(rlb);
         return rlb.build();
     }
 }

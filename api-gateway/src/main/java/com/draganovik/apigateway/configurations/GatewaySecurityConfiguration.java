@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @EnableWebFluxSecurity
-public class ApiGatewayAuth {
+public class GatewaySecurityConfiguration {
 
     @Autowired
     private WebClient.Builder webClientBuilder;

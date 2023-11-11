@@ -2,7 +2,7 @@ package com.draganovik.apigateway;
 
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 
-public class ServiceRoutes {
+public class GatewayRouteMapper {
 
     public static void mapRoutesUserService(RouteLocatorBuilder.Builder rlb) {
         rlb.route(p -> p.path("/user-service/**").uri("lb://user-service"));
