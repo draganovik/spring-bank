@@ -35,7 +35,7 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
-            if(operatorRole == Role.ADMIN && user.getRole() == Role.ADMIN) {
+            if (operatorRole == Role.ADMIN && user.getRole() == Role.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
             if (user.getRole() == Role.OWNER) {
@@ -85,11 +85,11 @@ public class UserController {
         try {
             Optional<User> deleteUser = userRepository.findByEmail(email);
 
-            if(deleteUser.isEmpty()) {
+            if (deleteUser.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            if(deleteUser.get().getRole() == Role.OWNER) {
+            if (deleteUser.get().getRole() == Role.OWNER) {
                 return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
             }
             userRepository.deleteByEmail(email);
@@ -103,7 +103,7 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers(HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            if (operatorRole == Role.OWNER || operatorRole ==  Role.ADMIN) {
+            if (operatorRole == Role.OWNER || operatorRole == Role.ADMIN) {
                 List<User> users = userRepository.findAll();
 
                 return new ResponseEntity<>(users.stream()
