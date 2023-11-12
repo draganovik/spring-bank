@@ -3,7 +3,7 @@ package com.draganovik.userservice.controllers;
 import com.draganovik.userservice.UserRepository;
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
-import com.draganovik.userservice.models.UserCreatedResponse;
+import com.draganovik.userservice.models.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/user-service")
+@RequestMapping("/user-service/users")
 public class UserController {
 
     @Autowired
@@ -24,28 +25,40 @@ public class UserController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PostMapping("/users")
-    public ResponseEntity<UserCreatedResponse> addUser(@RequestBody User user, HttpServletRequest request) {
+    @PostMapping("/create")
+    public ResponseEntity<UserResponse> addUser(@RequestBody User user, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
+
             Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
             if (optionalUser.isPresent()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            if (operatorRole == Role.OWNER || (operatorRole == Role.ADMIN && user.getRole() == Role.USER)) {
-                user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-                User newUser = userRepository.save(user);
-                UserCreatedResponse response = new UserCreatedResponse(newUser);
-                return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+            if(operatorRole == Role.ADMIN && user.getRole() == Role.ADMIN) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            if (user.getRole() == Role.OWNER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            User newUser = userRepository.save(user);
+            UserResponse response = new UserResponse(newUser);
+
+            Optional<User> createdUser = userRepository.findByEmail(user.getEmail());
+            if (createdUser.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @PutMapping("/users/{email}")
-    public ResponseEntity<UserCreatedResponse> updateUser(@PathVariable String email, @RequestBody User user, HttpServletRequest request) {
+    @PutMapping("/update/{email}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String email, @RequestBody User user, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
             Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -55,7 +68,7 @@ public class UserController {
                     user.setEmail(email);
                     user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
                     User updatedUser = userRepository.save(user);
-                    UserCreatedResponse response = new UserCreatedResponse(updatedUser);
+                    UserResponse response = new UserResponse(updatedUser);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -67,31 +80,35 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/users/{email}")
+    @DeleteMapping("delete/{email}")
     public ResponseEntity<Void> deleteUserByEmail(@PathVariable String email, HttpServletRequest request) {
         try {
-            Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            Optional<User> optionalUser = userRepository.findByEmail(email);
-            if (optionalUser.isPresent()) {
-                if (operatorRole == Role.OWNER) {
-                    userRepository.deleteByEmail(email);
-                    return new ResponseEntity<>(HttpStatus.OK);
-                }
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            Optional<User> deleteUser = userRepository.findByEmail(email);
+
+            if(deleteUser.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+            if(deleteUser.get().getRole() == Role.OWNER) {
+                return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+            }
+            userRepository.deleteByEmail(email);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
+    @GetMapping()
+    public ResponseEntity<List<UserResponse>> getAllUsers(HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
             if (operatorRole == Role.OWNER || operatorRole ==  Role.ADMIN) {
                 List<User> users = userRepository.findAll();
-                return new ResponseEntity<>(users, HttpStatus.OK);
+
+                return new ResponseEntity<>(users.stream()
+                        .map(UserResponse::new)
+                        .collect(Collectors.toList()), HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
@@ -99,13 +116,13 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email, HttpServletRequest request) {
+    @GetMapping("/{email}")
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
             if (operatorRole == Role.OWNER) {
                 Optional<User> user = userRepository.findByEmail(email);
-                return user.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                return user.map(value -> new ResponseEntity<>(new UserResponse(value), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
             }
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {

@@ -3,22 +3,23 @@ package com.draganovik.userservice.models;
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
 
-public class UserCreatedResponse {
+public class UserResponse {
+
+    private Long id;
     private String email;
     private Role role;
-    private String environment;
 
-    public UserCreatedResponse(User user) {
+    public UserResponse(User user) {
         setEmail(user.getEmail());
         setRole(user.getRole());
-        setEnvironment(user.getEnvironment());
+        setId(user.getId());
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    private void setEmail(String email) {
         this.email = email;
     }
 
@@ -26,15 +27,15 @@ public class UserCreatedResponse {
         return role;
     }
 
-    public void setRole(Role role) {
+    private void setRole(Role role) {
         this.role = role;
     }
 
-    public String getEnvironment() {
-        return environment;
+    public Long getId() {
+        return id;
     }
 
-    public void setEnvironment(String environment) {
-        this.environment = environment;
+    private void setId(Long id) {
+        this.id = id;
     }
 }

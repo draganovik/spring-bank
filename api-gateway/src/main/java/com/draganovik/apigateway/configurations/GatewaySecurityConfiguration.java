@@ -36,10 +36,10 @@ public class GatewaySecurityConfiguration {
 
                 .pathMatchers("/user-service/register").permitAll()
                 .pathMatchers("/user-service/validate").permitAll() // Do not change, will cause an inf loop
-                .pathMatchers(HttpMethod.GET, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
-                .pathMatchers(HttpMethod.POST, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
-                .pathMatchers(HttpMethod.PUT, "/user-service/users/{email}").hasAnyRole("ADMIN", "OWNER")
-                .pathMatchers(HttpMethod.DELETE, "/user-service/users/{email}").hasAnyRole("OWNER")
+                .pathMatchers(HttpMethod.GET, "/user-service/users/**").hasAnyRole("ADMIN", "OWNER")
+                .pathMatchers(HttpMethod.POST, "/user-service/users/create").hasAnyRole("ADMIN", "OWNER")
+                .pathMatchers(HttpMethod.PUT, "/user-service/users/update/{email}").hasAnyRole("ADMIN", "OWNER")
+                .pathMatchers(HttpMethod.DELETE, "/user-service/users/delete/{email}").hasAnyRole("OWNER")
 
                 .pathMatchers(HttpMethod.GET, "/bank-account").hasRole("USER")
                 .pathMatchers(HttpMethod.GET, "/bank-account/{email}").hasRole("ADMIN")
