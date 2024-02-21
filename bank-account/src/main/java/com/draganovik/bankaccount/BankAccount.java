@@ -1,16 +1,26 @@
 package com.draganovik.bankaccount;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 public class BankAccount {
 
     @Id
-    private long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "ID", updatable = false, nullable = false)
+    @ColumnDefault("random_uuid()")
+    @Type(type = "uuid-char")
+    private UUID id;
 
     @Column(unique = true)
     private String email;
@@ -37,26 +47,35 @@ public class BankAccount {
         // Default constructor
     }
 
-    public BankAccount(long id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
-                       BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
-                       String environment) {
+    public BankAccount(String email, String environment) {
+        this.email = email;
+        this.environment = environment;
+    }
+
+    public BankAccount(UUID id, String email, String environment) {
         this.id = id;
         this.email = email;
+        this.environment = environment;
+    }
+
+    public BankAccount(UUID id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
+                       BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
+                       String environment) {
+        this(id, email, environment);
         this.quantityRSD = quantityRSD;
         this.quantityEUR = quantityEUR;
         this.quantityGBP = quantityGBP;
         this.quantityUSD = quantityUSD;
         this.quantityCHF = quantityCHF;
-        this.environment = environment;
     }
 
     // Getters and setters for each field
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

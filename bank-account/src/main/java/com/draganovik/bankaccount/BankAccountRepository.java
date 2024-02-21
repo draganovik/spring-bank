@@ -2,7 +2,9 @@ package com.draganovik.bankaccount;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
+import java.util.UUID;
+
+public interface BankAccountRepository extends JpaRepository<BankAccount, UUID> {
     BankAccount getBankAccountByEmail(String email);
 }
 
