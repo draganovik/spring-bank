@@ -3,9 +3,11 @@ package com.draganovik.userservice.models;
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
 
+import java.util.UUID;
+
 public class UserResponse {
 
-    private Long id;
+    private UUID id;
     private String email;
     private Role role;
 
@@ -31,11 +33,11 @@ public class UserResponse {
         this.role = role;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    private void setId(Long id) {
+    private void setId(UUID id) {
         this.id = id;
     }
 }

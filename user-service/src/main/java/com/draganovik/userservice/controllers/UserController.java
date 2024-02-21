@@ -3,6 +3,7 @@ package com.draganovik.userservice.controllers;
 import com.draganovik.userservice.UserRepository;
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
+import com.draganovik.userservice.models.UserRequest;
 import com.draganovik.userservice.models.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,64 +26,92 @@ public class UserController {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @PostMapping("/create")
-    public ResponseEntity<UserResponse> addUser(@RequestBody User user, HttpServletRequest request) {
+    @PostMapping()
+    public ResponseEntity<UserResponse> addUser(@RequestBody UserRequest userRequest, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
 
-            Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
+            Optional<User> optionalUser = userRepository.findByEmail(userRequest.getEmail());
             if (optionalUser.isPresent()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
-            if (operatorRole == Role.ADMIN && user.getRole() == Role.ADMIN) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-            if (user.getRole() == Role.OWNER) {
+            if (operatorRole != Role.OWNER && operatorRole != Role.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
 
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-            User newUser = userRepository.save(user);
-            UserResponse response = new UserResponse(newUser);
-
-            Optional<User> createdUser = userRepository.findByEmail(user.getEmail());
-            if (createdUser.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (operatorRole == Role.ADMIN && userRequest.getRole() != Role.USER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
+
+            if (operatorRole == Role.OWNER && userRequest.getRole() == Role.OWNER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+            User newUser = new User(
+                    userRequest.getEmail(),
+                    bCryptPasswordEncoder.encode(userRequest.getPassword()),
+                    userRequest.getRole(),
+                    "UNSET"
+            );
+
+            User createdUser = userRepository.save(newUser);
+            UserResponse response = new UserResponse(createdUser);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @PutMapping("/update/{email}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String email, @RequestBody User user, HttpServletRequest request) {
+    @PutMapping("/{email}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String email, @RequestBody UserRequest requestUser, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            Optional<User> optionalUser = userRepository.findByEmail(email);
-            if (optionalUser.isPresent()) {
-                User existingUser = optionalUser.get();
-                if (operatorRole == Role.OWNER || (operatorRole == Role.ADMIN && existingUser.getRole() == Role.USER)) {
-                    user.setEmail(email);
-                    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-                    User updatedUser = userRepository.save(user);
-                    UserResponse response = new UserResponse(updatedUser);
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-                }
+
+            Optional<User> existingUser = userRepository.findByEmail(email);
+
+            if (existingUser.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            if (operatorRole != Role.OWNER && operatorRole != Role.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
+            if (operatorRole == Role.ADMIN && requestUser.getRole() != Role.USER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+            if (requestUser.getRole() == Role.OWNER && existingUser.get().getRole() != Role.OWNER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+            User updateUser = existingUser.get();
+
+            updateUser.setEmail(requestUser.getEmail());
+            updateUser.setRole(requestUser.getRole());
+            updateUser.setPassword(bCryptPasswordEncoder.encode(requestUser.getPassword()));
+
+            User updatedUser = userRepository.save(updateUser);
+            UserResponse response = new UserResponse(updatedUser);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @DeleteMapping("delete/{email}")
+    @DeleteMapping("/{email}")
     public ResponseEntity<Void> deleteUserByEmail(@PathVariable String email, HttpServletRequest request) {
         try {
+            Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
+
+            if (operatorRole != Role.OWNER) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
             Optional<User> deleteUser = userRepository.findByEmail(email);
 
             if (deleteUser.isEmpty()) {
@@ -94,6 +123,7 @@ public class UserController {
             }
             userRepository.deleteByEmail(email);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -103,14 +133,17 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers(HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            if (operatorRole == Role.OWNER || operatorRole == Role.ADMIN) {
-                List<User> users = userRepository.findAll();
 
-                return new ResponseEntity<>(users.stream()
-                        .map(UserResponse::new)
-                        .collect(Collectors.toList()), HttpStatus.OK);
+            if (operatorRole != Role.OWNER && operatorRole != Role.ADMIN) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+            List<User> users = userRepository.findAll();
+
+            return new ResponseEntity<>(users.stream()
+                    .map(UserResponse::new)
+                    .collect(Collectors.toList()), HttpStatus.OK);
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -120,11 +153,14 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email, HttpServletRequest request) {
         try {
             Role operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
-            if (operatorRole == Role.OWNER) {
-                Optional<User> user = userRepository.findByEmail(email);
-                return user.map(value -> new ResponseEntity<>(new UserResponse(value), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            if (operatorRole != Role.OWNER && operatorRole != Role.ADMIN) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+            Optional<User> user = userRepository.findByEmail(email);
+
+            return user.map(value -> new ResponseEntity<>(new UserResponse(value), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

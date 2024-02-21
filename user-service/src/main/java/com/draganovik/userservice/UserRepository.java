@@ -1,5 +1,6 @@
 package com.draganovik.userservice;
 
+import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByRole(Role email);
 
     @Transactional
     @Modifying

@@ -1,14 +1,26 @@
 package com.draganovik.userservice.entities;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity(name = "users")
 @Table(indexes = @Index(columnList = "email"))
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "ID", updatable = false, nullable = false)
+    @ColumnDefault("random_uuid()")
+    @Type(type = "uuid-char")
+    private UUID id;
 
     @Basic(optional = false)
     @Column(unique = true, nullable = false)
@@ -33,7 +45,7 @@ public class User {
         setEnvironment(environment);
     }
 
-    public User(Long id, String email, String password, Role role, String environment) {
+    public User(UUID id, String email, String password, Role role, String environment) {
         this(email, password, role, environment);
         setId(id);
     }
@@ -70,11 +82,11 @@ public class User {
         this.role = role;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 }
