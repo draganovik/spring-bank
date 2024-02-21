@@ -1,9 +1,9 @@
 package com.draganovik.userservice.controllers;
 
 import com.draganovik.userservice.JwtService;
-import com.draganovik.userservice.models.JwtRequest;
-import com.draganovik.userservice.models.JwtResponse;
-import com.draganovik.userservice.models.JwtValidationResponse;
+import com.draganovik.userservice.models.RegisterRequest;
+import com.draganovik.userservice.models.RegisterResponse;
+import com.draganovik.userservice.models.ValidateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +20,11 @@ public class AuthController {
     private JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody JwtRequest authenticationRequest) {
-        Optional<JwtResponse> optionalJwtResponse = jwtService.createToken(authenticationRequest);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest authenticationRequest) {
+        Optional<RegisterResponse> optionalJwtResponse = jwtService.createToken(authenticationRequest);
         if (optionalJwtResponse.isPresent()) {
-            JwtResponse jwtResponse = optionalJwtResponse.get();
-            return ResponseEntity.ok(jwtResponse);
+            RegisterResponse registerResponse = optionalJwtResponse.get();
+            return ResponseEntity.ok(registerResponse);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credentials");
     }
@@ -38,7 +38,7 @@ public class AuthController {
         }
 
         String jwtToken = authorization.substring(7);
-        Optional<JwtValidationResponse> validate = jwtService.validateToken(jwtToken);
+        Optional<ValidateResponse> validate = jwtService.validateToken(jwtToken);
 
         if (validate.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");

@@ -2,15 +2,15 @@ package com.draganovik.userservice.models;
 
 import com.draganovik.userservice.entities.Role;
 
-public class JwtValidationResponse {
+public class ValidateResponse {
     private Role role;
     private String email;
 
-    public JwtValidationResponse() {
+    public ValidateResponse() {
         super();
     }
 
-    public JwtValidationResponse(Role role, String email) {
+    public ValidateResponse(Role role, String email) {
         this();
         setRole(role);
         setEmail(email);

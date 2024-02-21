@@ -2,9 +2,9 @@ package com.draganovik.userservice;
 
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
-import com.draganovik.userservice.models.JwtRequest;
-import com.draganovik.userservice.models.JwtResponse;
-import com.draganovik.userservice.models.JwtValidationResponse;
+import com.draganovik.userservice.models.RegisterRequest;
+import com.draganovik.userservice.models.RegisterResponse;
+import com.draganovik.userservice.models.ValidateResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -34,7 +34,7 @@ public class JwtService {
     @Value("${jwt.expiration_time}")
     private Integer jwtExpirationTime;
 
-    public Optional<JwtResponse> createToken(JwtRequest request) {
+    public Optional<RegisterResponse> createToken(RegisterRequest request) {
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
@@ -64,13 +64,13 @@ public class JwtService {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
 
-            return Optional.of(new JwtResponse(jwtToken, user.getRole(), user.getEmail(), expirationLocalDate, generatedLocalDate));
+            return Optional.of(new RegisterResponse(jwtToken, user.getRole(), user.getEmail(), expirationLocalDate, generatedLocalDate));
         }
 
         return Optional.empty();
     }
 
-    public Optional<JwtValidationResponse> validateToken(String jwtToken) {
+    public Optional<ValidateResponse> validateToken(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwtToken);
             if (claims.getBody().getExpiration().before(new Date())) {
@@ -78,7 +78,7 @@ public class JwtService {
             }
             String email = claims.getBody().get("sub").toString();
             String role = claims.getBody().get("role").toString();
-            return Optional.of(new JwtValidationResponse(Role.valueOf(role), email));
+            return Optional.of(new ValidateResponse(Role.valueOf(role), email));
         } catch (Exception e) {
             return Optional.empty();
         }

@@ -1,6 +1,6 @@
 package com.draganovik.userservice.models;
 
-public class JwtRequest {
+public class RegisterRequest {
     private String email;
     private String password;
 

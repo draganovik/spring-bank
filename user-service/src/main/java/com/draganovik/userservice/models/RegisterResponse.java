@@ -4,18 +4,18 @@ import com.draganovik.userservice.entities.Role;
 
 import java.time.LocalDateTime;
 
-public class JwtResponse {
+public class RegisterResponse {
     private String jwtToken;
     private Role role;
     private String email;
     private LocalDateTime jwtExpiration;
     private LocalDateTime jwtGeneration;
 
-    public JwtResponse() {
+    public RegisterResponse() {
         super();
     }
 
-    public JwtResponse(String jwtToken, Role role, String email, LocalDateTime expirationDate, LocalDateTime generatedDate) {
+    public RegisterResponse(String jwtToken, Role role, String email, LocalDateTime expirationDate, LocalDateTime generatedDate) {
         this();
         setJwtToken(jwtToken);
         setRole(role);
