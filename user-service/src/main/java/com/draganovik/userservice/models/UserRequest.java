@@ -2,10 +2,7 @@ package com.draganovik.userservice.models;
 
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

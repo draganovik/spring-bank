@@ -1,30 +1,22 @@
 package com.draganovik.currencyexchange;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.math.BigDecimal;
 
-@Entity
-public class CurrencyExchange {
+public class CurrencyExchangeResponse {
 
-    @Id
-    private long id;
-    @Column(name = "currency_from")
     private String from;
-    @Column(name = "currency_to")
     private String to;
-    @Column(name = "conversion_multiple", precision = 38, scale = 4)
     private BigDecimal conversionMultiple;
+    private String environment;
 
-    public CurrencyExchange() {
+    public CurrencyExchangeResponse() {
     }
 
-    public CurrencyExchange(long id, String from, String to, BigDecimal conversionMultiple) {
-        setId(id);
+    public CurrencyExchangeResponse(String from, String to, BigDecimal conversionMultiple, String environment) {
         setFrom(from);
         setTo(to);
         setConversionMultiple(conversionMultiple);
+        setEnvironment(environment);
     }
 
     public String getFrom() {
@@ -51,12 +43,12 @@ public class CurrencyExchange {
         this.conversionMultiple = conversionMultiple;
     }
 
-    public long getId() {
-        return id;
+    public String getEnvironment() {
+        return environment;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setEnvironment(String environment) {
+        this.environment = environment;
     }
 }
 

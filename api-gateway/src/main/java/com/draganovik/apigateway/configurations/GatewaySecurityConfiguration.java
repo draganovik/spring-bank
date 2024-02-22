@@ -29,6 +29,8 @@ public class GatewaySecurityConfiguration {
                 .pathMatchers(HttpMethod.PUT, "/user-service/users/{email}").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.DELETE, "/user-service/users/{email}").hasAnyRole("OWNER")
 
+                .pathMatchers("/currency-exchange/**").permitAll()
+
                 .pathMatchers(HttpMethod.GET, "/bank-account").hasRole("USER")
                 .pathMatchers(HttpMethod.GET, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/bank-account/{email}").hasRole("ADMIN")
@@ -42,9 +44,6 @@ public class GatewaySecurityConfiguration {
                 .pathMatchers(HttpMethod.PUT, "/crypto-wallet/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/crypto-wallet/{email}").hasRole("ADMIN")
 
-
-
-                .pathMatchers("/currency-exchange/**").hasAnyRole()
 
                 .pathMatchers("/crypto-exchange/**").hasAnyRole()
 

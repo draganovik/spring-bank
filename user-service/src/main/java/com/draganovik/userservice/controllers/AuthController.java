@@ -6,7 +6,6 @@ import com.draganovik.userservice.models.RegisterRequest;
 import com.draganovik.userservice.models.RegisterResponse;
 import com.draganovik.userservice.models.ValidateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,7 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest authenticationRequest) throws Exception {
         Optional<RegisterResponse> optionalJwtResponse = jwtService.createToken(authenticationRequest);
 
-        if(optionalJwtResponse.isEmpty()) {
+        if (optionalJwtResponse.isEmpty()) {
             throw new ExtendedExceptions.BadRequestException("Invalid credentials");
         }
 

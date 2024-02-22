@@ -2,28 +2,31 @@ package com.draganovik.userservice.exceptions;
 
 public class ExtendedExceptions {
     public static class ForbiddenException extends Exception {
-        public ForbiddenException(){
+        public ForbiddenException() {
 
             super("Forbidden request and/or action.");
         }
-        public ForbiddenException(String message){
+
+        public ForbiddenException(String message) {
 
             super(message);
         }
     }
+
     public static class UnauthorizedException extends Exception {
-        public UnauthorizedException(){
+        public UnauthorizedException() {
 
             super("Request is unauthorized.");
         }
-        public UnauthorizedException(String message){
+
+        public UnauthorizedException(String message) {
 
             super(message);
         }
     }
 
     public static class BadRequestException extends Exception {
-        public BadRequestException(String message){
+        public BadRequestException(String message) {
 
             super(message);
         }
