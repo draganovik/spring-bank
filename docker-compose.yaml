@@ -35,6 +35,51 @@ services:
     networks:
       - currency-network
 
+  user-service:
+    image: draganovik/user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8770:8770"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  currency-exchange:
+    image: draganovik/currency-exchange:latest
+    build:
+      context: ./currency-exchange
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  currency-conversion:
+    image: draganovik/currency-conversion:latest
+    build:
+      context: ./currency-conversion
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
   bank-account:
     image: draganovik/bank-account:latest
     build:
@@ -42,6 +87,81 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8200:8200"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  crypto-wallet:
+    image: draganovik/crypto-wallet:latest
+    build:
+      context: ./crypto-wallet
+      dockerfile: Dockerfile
+    ports:
+      - "8300:8300"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  crypto-exchange:
+    image: draganovik/crypto-exchange:latest
+    build:
+      context: ./crypto-exchange
+      dockerfile: Dockerfile
+    ports:
+      - "8400:8400"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  crypto-conversion:
+    image: draganovik/crypto-conversion:latest
+    build:
+      context: ./crypto-conversion
+      dockerfile: Dockerfile
+    ports:
+      - "8500:8500"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  trade-service:
+    image: draganovik/trade-service:latest
+    build:
+      context: ./trade-service
+      dockerfile: Dockerfile
+    ports:
+      - "8600:8600"
+    networks:
+      - currency-network
+    depends_on:
+      - naming-server
+    environment:
+      EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+
+  transfer-service:
+    image: draganovik/transfer-service:latest
+    build:
+      context: ./transfer-service
+      dockerfile: Dockerfile
+    ports:
+      - "8700:8700"
     networks:
       - currency-network
     depends_on:
