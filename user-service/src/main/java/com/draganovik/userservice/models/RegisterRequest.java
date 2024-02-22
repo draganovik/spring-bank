@@ -1,7 +1,19 @@
 package com.draganovik.userservice.models;
 
+import com.sun.istack.NotNull;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 public class RegisterRequest {
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
     public String getEmail() {

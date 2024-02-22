@@ -1,6 +1,7 @@
 package com.draganovik.userservice.controllers;
 
 import com.draganovik.userservice.JwtService;
+import com.draganovik.userservice.exceptions.ExtendedExceptions;
 import com.draganovik.userservice.models.RegisterRequest;
 import com.draganovik.userservice.models.RegisterResponse;
 import com.draganovik.userservice.models.ValidateResponse;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -20,28 +22,30 @@ public class AuthController {
     private JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest authenticationRequest) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest authenticationRequest) throws Exception {
         Optional<RegisterResponse> optionalJwtResponse = jwtService.createToken(authenticationRequest);
-        if (optionalJwtResponse.isPresent()) {
-            RegisterResponse registerResponse = optionalJwtResponse.get();
-            return ResponseEntity.ok(registerResponse);
+
+        if(optionalJwtResponse.isEmpty()) {
+            throw new ExtendedExceptions.BadRequestException("Invalid credentials");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credentials");
+
+        RegisterResponse registerResponse = optionalJwtResponse.get();
+        return ResponseEntity.ok(registerResponse);
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<?> validate(HttpServletRequest request) {
+    public ResponseEntity<?> validate(HttpServletRequest request) throws Exception {
         String authorization = request.getHeader("Authorization");
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            throw new ExtendedExceptions.UnauthorizedException();
         }
 
         String jwtToken = authorization.substring(7);
         Optional<ValidateResponse> validate = jwtService.validateToken(jwtToken);
 
         if (validate.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            throw new ExtendedExceptions.UnauthorizedException();
         }
 
         return ResponseEntity.ok(validate.get());

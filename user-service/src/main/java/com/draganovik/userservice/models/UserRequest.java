@@ -2,12 +2,25 @@ package com.draganovik.userservice.models;
 
 import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class UserRequest {
-    private Role role;
 
+    @NotNull(message = "Role is mandatory")
+    private Role role;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
 
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
     public UserRequest() {
