@@ -5,6 +5,7 @@ import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
 import com.draganovik.userservice.exceptions.ErrorResponse;
 import com.draganovik.userservice.exceptions.ExtendedExceptions;
+import com.draganovik.userservice.feign.FeignBankAccount;
 import com.draganovik.userservice.models.UserRequest;
 import com.draganovik.userservice.models.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FeignBankAccount feignBankAccount;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -137,6 +141,7 @@ public class UserController {
         }
 
         userRepository.deleteByEmail(email);
+        feignBankAccount.deleteBankAccount(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

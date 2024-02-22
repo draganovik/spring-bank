@@ -1,10 +1,13 @@
-package com.draganovik.bankaccount;
+package com.draganovik.bankaccount.entities;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -26,50 +29,41 @@ public class BankAccount {
     private String email;
 
     @Column(name = "quantity_RSD")
-    private BigDecimal quantityRSD;
+    private BigDecimal quantityRSD = BigDecimal.ZERO;
 
     @Column(name = "quantity_EUR")
-    private BigDecimal quantityEUR;
+    private BigDecimal quantityEUR = BigDecimal.ZERO;
 
     @Column(name = "quantity_GBP")
-    private BigDecimal quantityGBP;
+    private BigDecimal quantityGBP = BigDecimal.ZERO;
 
     @Column(name = "quantity_USD")
-    private BigDecimal quantityUSD;
+    private BigDecimal quantityUSD = BigDecimal.ZERO;
 
     @Column(name = "quantity_CHF")
-    private BigDecimal quantityCHF;
-
-    @Transient
-    private String environment;
+    private BigDecimal quantityCHF = BigDecimal.ZERO;
 
     public BankAccount() {
-        // Default constructor
     }
 
-    public BankAccount(String email, String environment) {
+    public BankAccount(String email) {
         this.email = email;
-        this.environment = environment;
     }
 
-    public BankAccount(UUID id, String email, String environment) {
+    public BankAccount(UUID id, String email) {
         this.id = id;
         this.email = email;
-        this.environment = environment;
     }
 
     public BankAccount(UUID id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
-                       BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
-                       String environment) {
-        this(id, email, environment);
+                       BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF) {
+        this(id, email);
         this.quantityRSD = quantityRSD;
         this.quantityEUR = quantityEUR;
         this.quantityGBP = quantityGBP;
         this.quantityUSD = quantityUSD;
         this.quantityCHF = quantityCHF;
     }
-
-    // Getters and setters for each field
 
     public UUID getId() {
         return id;
@@ -125,13 +119,5 @@ public class BankAccount {
 
     public void setQuantityCHF(BigDecimal quantityCHF) {
         this.quantityCHF = quantityCHF;
-    }
-
-    public String getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(String environment) {
-        this.environment = environment;
     }
 }

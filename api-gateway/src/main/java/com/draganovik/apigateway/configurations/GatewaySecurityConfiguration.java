@@ -24,8 +24,9 @@ public class GatewaySecurityConfiguration {
         http.csrf().disable().authorizeExchange()
                 .pathMatchers("/user-service/register").permitAll()
                 .pathMatchers("/user-service/validate").permitAll()
-                .pathMatchers(HttpMethod.GET, "/user-service/users/**").hasAnyRole("ADMIN", "OWNER")
+                .pathMatchers(HttpMethod.GET, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.POST, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
+                .pathMatchers(HttpMethod.GET, "/user-service/users/{email}").hasAnyRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/user-service/users/{email}").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.DELETE, "/user-service/users/{email}").hasAnyRole("OWNER")
 
