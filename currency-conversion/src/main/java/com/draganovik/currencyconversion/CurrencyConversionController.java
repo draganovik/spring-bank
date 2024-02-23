@@ -62,14 +62,14 @@ public class CurrencyConversionController {
         CurrencyCode toCC;
         try {
             toCC = CurrencyCode.valueOf(to);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
         }
 
         CurrencyCode fromCC;
         try {
             fromCC = CurrencyCode.valueOf(from);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + from + " is not supported.");
         }
 

@@ -3,7 +3,6 @@ package com.draganovik.bankaccount;
 import com.draganovik.bankaccount.entities.BankAccount;
 import com.draganovik.bankaccount.entities.Role;
 import com.draganovik.bankaccount.exceptions.ExtendedExceptions;
-import com.draganovik.bankaccount.models.BankAccountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +34,11 @@ public class TransactionController {
 
         Optional<BankAccount> checkBankAccount = bankAccountRepository.getBankAccountByEmail(email);
 
-        if(checkBankAccount.isEmpty()) {
+        if (checkBankAccount.isEmpty()) {
             throw new ExtendedExceptions.BadRequestException("Can't find the requested account.");
         }
 
-        if(operatorRole == Role.USER && operatorEmail.isEmpty() && !operatorEmail.equals(checkBankAccount.get().getEmail())) {
+        if (operatorRole == Role.USER && operatorEmail.isEmpty() && !operatorEmail.equals(checkBankAccount.get().getEmail())) {
             throw new ExtendedExceptions.UnauthorizedException("No permission to withdraw from this account.");
         }
 
@@ -47,31 +46,31 @@ public class TransactionController {
 
         switch (currency) {
             case "RSD":
-                if(bankAccount.getQuantityRSD().compareTo(BigDecimal.valueOf(amount)) < 0) {
+                if (bankAccount.getQuantityRSD().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new ExtendedExceptions.BadRequestException("Not enough funds to perform this action.");
                 }
                 bankAccount.setQuantityRSD(bankAccount.getQuantityRSD().subtract(BigDecimal.valueOf(amount)));
                 break;
             case "EUR":
-                if(bankAccount.getQuantityEUR().compareTo(BigDecimal.valueOf(amount)) < 0) {
+                if (bankAccount.getQuantityEUR().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new ExtendedExceptions.BadRequestException("Not enough funds to perform this action.");
                 }
                 bankAccount.setQuantityEUR(bankAccount.getQuantityEUR().subtract(BigDecimal.valueOf(amount)));
                 break;
             case "USD":
-                if(bankAccount.getQuantityUSD().compareTo(BigDecimal.valueOf(amount)) < 0) {
+                if (bankAccount.getQuantityUSD().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new ExtendedExceptions.BadRequestException("Not enough funds to perform this action.");
                 }
                 bankAccount.setQuantityUSD(bankAccount.getQuantityUSD().subtract(BigDecimal.valueOf(amount)));
                 break;
             case "GBP":
-                if(bankAccount.getQuantityGBP().compareTo(BigDecimal.valueOf(amount)) < 0) {
+                if (bankAccount.getQuantityGBP().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new ExtendedExceptions.BadRequestException("Not enough funds to perform this action.");
                 }
                 bankAccount.setQuantityGBP(bankAccount.getQuantityGBP().subtract(BigDecimal.valueOf(amount)));
                 break;
             case "CHF":
-                if(bankAccount.getQuantityCHF().compareTo(BigDecimal.valueOf(amount)) < 0) {
+                if (bankAccount.getQuantityCHF().compareTo(BigDecimal.valueOf(amount)) < 0) {
                     throw new ExtendedExceptions.BadRequestException("Not enough funds to perform this action.");
                 }
                 bankAccount.setQuantityCHF(bankAccount.getQuantityCHF().subtract(BigDecimal.valueOf(amount)));
@@ -88,7 +87,7 @@ public class TransactionController {
 
         Optional<BankAccount> checkBankAccount = bankAccountRepository.getBankAccountByEmail(email);
 
-        if(checkBankAccount.isEmpty()) {
+        if (checkBankAccount.isEmpty()) {
             throw new ExtendedExceptions.BadRequestException("Can't find the requested account.");
         }
 

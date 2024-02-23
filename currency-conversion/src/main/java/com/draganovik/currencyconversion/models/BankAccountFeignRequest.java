@@ -1,7 +1,6 @@
 package com.draganovik.currencyconversion.models;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public class BankAccountFeignRequest {
     private BigDecimal quantityRSD;

@@ -18,8 +18,8 @@ public class BankAccountFeignResponse {
     }
 
     public BankAccountFeignResponse(UUID id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
-                               BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
-                               String environment) {
+                                    BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
+                                    String environment) {
         this.setId(id);
         this.setEmail(email);
         this.setQuantityRSD(quantityRSD);
