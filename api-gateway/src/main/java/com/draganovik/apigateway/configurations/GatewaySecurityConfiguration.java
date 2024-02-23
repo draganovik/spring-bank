@@ -33,6 +33,8 @@ public class GatewaySecurityConfiguration {
                 .pathMatchers("/currency-exchange/**").permitAll()
 
                 .pathMatchers(HttpMethod.GET, "/bank-account").hasRole("USER")
+                .pathMatchers(HttpMethod.POST, "/bank-account/{email}/withdraw").hasAnyRole("ADMIN", "USER")
+                .pathMatchers(HttpMethod.POST, "/bank-account/{email}/deposit").permitAll()
                 .pathMatchers(HttpMethod.GET, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/bank-account/{email}").hasRole("ADMIN")

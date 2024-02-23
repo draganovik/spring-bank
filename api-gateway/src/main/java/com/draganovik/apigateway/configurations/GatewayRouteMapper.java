@@ -17,9 +17,10 @@ public class GatewayRouteMapper {
     }
 
     public static void mapRoutesCurrencyConversion(RouteLocatorBuilder.Builder rlb) {
-        rlb.route(p -> p.path("/currency-conversion-feign").uri("lb://currency-conversion"))
+        rlb.route(p -> p.path("/currency-conversion/**").uri("lb://currency-conversion"));
+        /*rlb.route(p -> p.path("/currency-conversion-feign").uri("lb://currency-conversion"))
                 .route(p -> p.path("/currency-conversion")
                         .filters(f -> f.rewritePath("currency-conversion", "currency-conversion-feign"))
-                        .uri("lb://currency-conversion"));
+                        .uri("lb://currency-conversion"));*/
     }
 }

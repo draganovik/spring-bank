@@ -1,74 +1,106 @@
 package com.draganovik.currencyconversion;
 
-import feign.FeignException;
+import com.draganovik.currencyconversion.entities.CurrencyCode;
+import com.draganovik.currencyconversion.entities.Role;
+import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
+import com.draganovik.currencyconversion.feign.FeignCurrencyExchange;
+import com.draganovik.currencyconversion.feign.FeignFeignBankAccount;
+import com.draganovik.currencyconversion.models.BankAccountFeignResponse;
+import com.draganovik.currencyconversion.models.CurrencyExchangeFeignResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.HashMap;
 
 @RestController
+@RequestMapping("/currency-conversion")
 public class CurrencyConversionController {
 
     @Autowired
-    private CurrencyExchangeProxy proxy;
+    private Environment environment;
 
-    //localhost:8100/currency-conversion/from/EUR/to/RSD/quantity/100
-    @GetMapping("/currency-conversion/from/{from}/to/{to}/quantity/{quantity}")
-    public CurrencyConversion getConversion
-    (@PathVariable String from, @PathVariable String to, @PathVariable double quantity) {
+    @Autowired
+    private FeignFeignBankAccount feignBankAccount;
 
-        HashMap<String, String> uriVariables = new HashMap<String, String>();
-        uriVariables.put("from", from);
-        uriVariables.put("to", to);
+    @Autowired
+    private FeignCurrencyExchange feignCurrencyExchange;
 
-        ResponseEntity<CurrencyConversion> response =
-                new RestTemplate().
-                        getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}",
-                                CurrencyConversion.class, uriVariables);
+    @PostMapping()
+    public ResponseEntity<?> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
 
-        CurrencyConversion cc = response.getBody();
-
-        return new CurrencyConversion(from, to, cc.getConversionMultiple(), cc.getEnvironment(), quantity,
-                cc.getConversionMultiple().multiply(BigDecimal.valueOf(quantity)));
-    }
-
-    //localhost:8100/currency-conversion?from=EUR&to=RSD&quantity=50
-    @GetMapping("/currency-conversion")
-    public ResponseEntity<?> getConversionParams(@RequestParam String from, @RequestParam String to, @RequestParam double quantity) {
-
-        HashMap<String, String> uriVariable = new HashMap<String, String>();
-        uriVariable.put("from", from);
-        uriVariable.put("to", to);
-
+        String operatorEmail;
+        Role operatorRole;
         try {
-            ResponseEntity<CurrencyConversion> response = new RestTemplate().
-                    getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}", CurrencyConversion.class, uriVariable);
-            CurrencyConversion responseBody = response.getBody();
-            return ResponseEntity.status(HttpStatus.OK).body(new CurrencyConversion(from, to, responseBody.getConversionMultiple(), responseBody.getEnvironment(),
-                    quantity, responseBody.getConversionMultiple().multiply(BigDecimal.valueOf(quantity))));
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
+            operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
+            operatorEmail = request.getHeader("X-User-Email");
+
+            if (operatorEmail.isEmpty() || operatorRole != Role.USER) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            throw new ExtendedExceptions.UnauthorizedException("Only logged in USERs can perform this action.");
         }
-    }
 
-    //localhost:8100/currency-conversion-feign?from=EUR&to=RSD&quantity=50
-    @GetMapping("/currency-conversion-feign")
-    public ResponseEntity<?> getConversionFeign(@RequestParam String from, @RequestParam String to, @RequestParam double quantity) {
+        ResponseEntity<BankAccountFeignResponse> bankAccountResponse =
+                feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
 
+        if (bankAccountResponse.getStatusCode() != HttpStatus.OK) {
+            throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
+        }
+
+        BankAccountFeignResponse bankAccount = bankAccountResponse.getBody();
+
+        if (bankAccount == null) {
+            throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
+        }
+
+        CurrencyCode toCC;
         try {
-            ResponseEntity<CurrencyConversion> response = proxy.getExchange(from, to);
-            CurrencyConversion responseBody = response.getBody();
-            return ResponseEntity.ok(new CurrencyConversion(from, to, responseBody.getConversionMultiple(), responseBody.getEnvironment(),
-                    quantity, responseBody.getConversionMultiple().multiply(BigDecimal.valueOf(quantity))));
-        } catch (FeignException e) {
-            return ResponseEntity.status(e.status()).body(e.getMessage());
+            toCC = CurrencyCode.valueOf(to);
+        } catch(Exception ex) {
+            throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
         }
+
+        CurrencyCode fromCC;
+        try {
+            fromCC = CurrencyCode.valueOf(from);
+        } catch(Exception ex) {
+            throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + from + " is not supported.");
+        }
+
+        ResponseEntity<CurrencyExchangeFeignResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(fromCC.name(), toCC.name());
+
+        if (currencyExchangeResponse.getStatusCode() != HttpStatus.OK) {
+            throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
+        }
+
+        CurrencyExchangeFeignResponse exchange = currencyExchangeResponse.getBody();
+
+        if (exchange == null) {
+            throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
+        }
+
+        BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(BigDecimal.valueOf(quantity));
+
+        feignBankAccount.accountExchangeWithdraw(fromCC.name(), quantity, bankAccount.getEmail(),
+                operatorRole.name(), operatorEmail);
+
+        feignBankAccount.accountExchangeDeposit(toCC.name(), convertedQuantity.doubleValue(), bankAccount.getEmail(),
+                operatorRole.name(), operatorEmail);
+
+        bankAccountResponse =
+                feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+
+        if (bankAccountResponse.getStatusCode() != HttpStatus.OK) {
+            throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
+        }
+
+        return new ResponseEntity<>(bankAccountResponse.getBody(), HttpStatus.OK);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
