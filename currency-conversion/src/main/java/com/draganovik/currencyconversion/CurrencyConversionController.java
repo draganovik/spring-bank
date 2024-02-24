@@ -6,6 +6,8 @@ import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
 import com.draganovik.currencyconversion.feign.FeignCurrencyExchange;
 import com.draganovik.currencyconversion.feign.FeignFeignBankAccount;
 import com.draganovik.currencyconversion.models.BankAccountFeignResponse;
+import com.draganovik.currencyconversion.models.CurrencyConversionBankAccountResponse;
+import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
 import com.draganovik.currencyconversion.models.CurrencyExchangeFeignResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -31,7 +33,7 @@ public class CurrencyConversionController {
     private FeignCurrencyExchange feignCurrencyExchange;
 
     @PostMapping()
-    public ResponseEntity<?> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
 
         String operatorEmail;
         Role operatorRole;
@@ -96,11 +98,16 @@ public class CurrencyConversionController {
         bankAccountResponse =
                 feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
 
-        if (bankAccountResponse.getStatusCode() != HttpStatus.OK) {
+        if (bankAccountResponse.getStatusCode() != HttpStatus.OK || bankAccountResponse.getBody() == null) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        return new ResponseEntity<>(bankAccountResponse.getBody(), HttpStatus.OK);
+        CurrencyConversionBankAccountResponse CCBAResponse =
+                new CurrencyConversionBankAccountResponse(bankAccountResponse.getBody());
+
+        CurrencyConversionResponse response = new CurrencyConversionResponse(CCBAResponse, "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
