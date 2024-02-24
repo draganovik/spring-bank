@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BankAccountRepository extends JpaRepository<BankAccount, UUID> {
-    Optional<BankAccount> getBankAccountByEmail(String email);
+    Optional<BankAccount> findByEmail(String email);
 }
 
 

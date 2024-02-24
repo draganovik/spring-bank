@@ -48,7 +48,7 @@ public class BankAccountController {
             throw new ExtendedExceptions.UnauthorizedException("Only logged in USERs can perform this action.");
         }
 
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(operatorEmail);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(operatorEmail);
 
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Requested bank account does not exist.");
@@ -72,7 +72,7 @@ public class BankAccountController {
     @GetMapping("/{email}")
     public ResponseEntity<BankAccountResponse> getBankAccountByEmail(@PathVariable String email, HttpServletRequest request) throws Exception {
 
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(email);
 
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Requested bank account does not exist.");
@@ -106,7 +106,7 @@ public class BankAccountController {
             throw new ExtendedExceptions.ForbiddenException("Only ADMIN can perform this action.");
         }
 
-        Optional<BankAccount> checkAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> checkAccount = bankAccountRepository.findByEmail(email);
 
         if (checkAccount.isPresent()) {
             throw new ExtendedExceptions.BadRequestException("Can't create bank account for this profile.");
@@ -160,14 +160,13 @@ public class BankAccountController {
             throw new ExtendedExceptions.ForbiddenException("Only ADMIN can perform this action.");
         }
 
-        Optional<BankAccount> optionalAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> optionalAccount = bankAccountRepository.findByEmail(email);
 
         if (optionalAccount.isEmpty()) {
             throw new RuntimeException("Bank account you want to update is not found!");
         }
 
         BankAccount account = optionalAccount.get();
-
 
         account.setQuantityRSD(accountRequest.getQuantityRSD());
         account.setQuantityEUR(accountRequest.getQuantityEUR());
@@ -193,7 +192,7 @@ public class BankAccountController {
 
     @DeleteMapping("/{email}")
     public ResponseEntity<?> deleteBankAccountByEmail(@PathVariable @Email @Valid String email) throws Exception {
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(email);
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("There is no account associated with this email.");
         }

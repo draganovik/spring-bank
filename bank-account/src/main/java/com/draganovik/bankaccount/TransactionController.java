@@ -32,7 +32,7 @@ public class TransactionController {
             throw new ExtendedExceptions.UnauthorizedException("Request is not authorized.");
         }
 
-        Optional<BankAccount> checkBankAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> checkBankAccount = bankAccountRepository.findByEmail(email);
 
         if (checkBankAccount.isEmpty()) {
             throw new ExtendedExceptions.BadRequestException("Can't find the requested account.");
@@ -85,7 +85,7 @@ public class TransactionController {
     @PostMapping("{email}/deposit")
     public ResponseEntity<?> requestDeposit(@PathVariable String email, @RequestParam String currency, @RequestParam double amount) throws Exception {
 
-        Optional<BankAccount> checkBankAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> checkBankAccount = bankAccountRepository.findByEmail(email);
 
         if (checkBankAccount.isEmpty()) {
             throw new ExtendedExceptions.BadRequestException("Can't find the requested account.");

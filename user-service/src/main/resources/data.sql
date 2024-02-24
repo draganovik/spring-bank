@@ -7,3 +7,6 @@ VALUES (random_uuid(), 'admin@email.com', '$2a$10$lDKX1.bX8VBU83rCeHhZKu5efdurZh
 
 INSERT INTO users(id, email, password, role)
 VALUES (random_uuid(), 'user@email.com', '$2a$10$lDKX1.bX8VBU83rCeHhZKu5efdurZhlfnideRaWiZLBIUclVM.3/m', 'USER');
+
+INSERT INTO users(id, email, password, role)
+VALUES (random_uuid(), 'demo@email.com', '$2a$10$lDKX1.bX8VBU83rCeHhZKu5efdurZhlfnideRaWiZLBIUclVM.3/m', 'USER');

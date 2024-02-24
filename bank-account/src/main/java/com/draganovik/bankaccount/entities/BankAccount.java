@@ -28,19 +28,19 @@ public class BankAccount {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "quantity_RSD")
+    @Column(name = "quantity_RSD", precision = 14, scale = 2)
     private BigDecimal quantityRSD = BigDecimal.ZERO;
 
-    @Column(name = "quantity_EUR")
+    @Column(name = "quantity_EUR", precision = 14, scale = 2)
     private BigDecimal quantityEUR = BigDecimal.ZERO;
 
-    @Column(name = "quantity_GBP")
+    @Column(name = "quantity_GBP", precision = 14, scale = 2)
     private BigDecimal quantityGBP = BigDecimal.ZERO;
 
-    @Column(name = "quantity_USD")
+    @Column(name = "quantity_USD", precision = 14, scale = 2)
     private BigDecimal quantityUSD = BigDecimal.ZERO;
 
-    @Column(name = "quantity_CHF")
+    @Column(name = "quantity_CHF", precision = 14, scale = 2)
     private BigDecimal quantityCHF = BigDecimal.ZERO;
 
     public BankAccount() {

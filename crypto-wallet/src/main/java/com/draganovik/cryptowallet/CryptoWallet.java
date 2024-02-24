@@ -1,52 +1,66 @@
 package com.draganovik.cryptowallet;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 public class CryptoWallet {
 
     @Id
-    private long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "ID", updatable = false, nullable = false)
+    @ColumnDefault("random_uuid()")
+    @Type(type = "uuid-char")
+    private UUID id;
 
     @Column(unique = true)
     private String email;
 
-    @Column(name = "quantity_BTC")
-    private BigDecimal quantityBTC;
+    @Column(name = "quantity_BTC", precision = 19, scale = 6)
+    private BigDecimal quantityBTC = BigDecimal.ZERO;
 
-    @Column(name = "quantity_ETH")
-    private BigDecimal quantityETH;
+    @Column(name = "quantity_ETH", precision = 19, scale = 6)
+    private BigDecimal quantityETH = BigDecimal.ZERO;
 
-    @Column(name = "quantity_BNB")
-    private BigDecimal quantityBNB;
-
-    @Transient
-    private String environment;
+    @Column(name = "quantity_DOGE", precision = 19, scale = 6)
+    private BigDecimal quantityDOGE = BigDecimal.ZERO;
 
     public CryptoWallet() {
         super();
     }
 
-    public CryptoWallet(long id, String email, BigDecimal quantityBTC, BigDecimal quantityETH,
-                        BigDecimal quantityBNB, String environment) {
+    public CryptoWallet(String email) {
+        super();
+        this.email = email;
+    }
+
+    public CryptoWallet(UUID id, String email, BigDecimal quantityBTC, BigDecimal quantityETH,
+                        BigDecimal quantityDOGE, String environment) {
         super();
         this.id = id;
         this.email = email;
         this.quantityBTC = quantityBTC;
         this.quantityETH = quantityETH;
-        this.quantityBNB = quantityBNB;
-        this.environment = environment;
+        this.quantityDOGE = quantityDOGE;
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -74,20 +88,12 @@ public class CryptoWallet {
         this.quantityETH = quantityETH;
     }
 
-    public BigDecimal getQuantityBNB() {
-        return quantityBNB;
+    public BigDecimal getQuantityDOGE() {
+        return quantityDOGE;
     }
 
-    public void setQuantityBNB(BigDecimal quantityBNB) {
-        this.quantityBNB = quantityBNB;
-    }
-
-    public String getEnvironment() {
-        return environment;
-    }
-
-    public void setEnvironment(String environment) {
-        this.environment = environment;
+    public void setQuantityDOGE(BigDecimal quantityDOGE) {
+        this.quantityDOGE = quantityDOGE;
     }
 
 }
