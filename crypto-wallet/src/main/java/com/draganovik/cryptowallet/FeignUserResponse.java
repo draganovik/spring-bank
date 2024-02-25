@@ -1,15 +1,13 @@
-package com.draganovik.bankaccount.models;
-
-import com.draganovik.bankaccount.entities.Role;
+package com.draganovik.cryptowallet;
 
 import java.util.UUID;
 
-public class UserFeignResponse {
+public class FeignUserResponse {
     private UUID id;
     private String email;
     private Role role;
 
-    public UserFeignResponse() {
+    public FeignUserResponse() {
     }
 
     public String getEmail() {

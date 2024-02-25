@@ -6,7 +6,7 @@ import com.draganovik.bankaccount.exceptions.ExtendedExceptions;
 import com.draganovik.bankaccount.feign.FeignUserService;
 import com.draganovik.bankaccount.models.BankAccountRequest;
 import com.draganovik.bankaccount.models.BankAccountResponse;
-import com.draganovik.bankaccount.models.UserFeignResponse;
+import com.draganovik.bankaccount.models.FeignUserResponse;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -109,19 +109,19 @@ public class BankAccountController {
             throw new ExtendedExceptions.BadRequestException("Can't create bank account for this profile.");
         }
 
-        ResponseEntity<UserFeignResponse> feignResponse;
+        ResponseEntity<FeignUserResponse> feignResponse;
 
         try {
             feignResponse = feignUserService.getUserByEmail(email, operatorRole.name());
         } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException(ex.getMessage());
+            throw new ExtendedExceptions.BadRequestException("Can't create bank account. Can't find user profile for provided email.");
         }
 
         if (feignResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.BadRequestException("Can't create bank account. User profile doesn't exist.");
         }
 
-        UserFeignResponse feignUser = feignResponse.getBody();
+        FeignUserResponse feignUser = feignResponse.getBody();
 
         if (feignUser == null || feignResponse.getBody().getRole() != Role.USER) {
             throw new ExtendedExceptions.BadRequestException("Accounts can only be created for profile type USER.");

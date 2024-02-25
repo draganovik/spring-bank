@@ -6,6 +6,7 @@ import com.draganovik.userservice.entities.User;
 import com.draganovik.userservice.exceptions.ErrorResponse;
 import com.draganovik.userservice.exceptions.ExtendedExceptions;
 import com.draganovik.userservice.feign.FeignBankAccount;
+import com.draganovik.userservice.feign.FeignCryptoWallet;
 import com.draganovik.userservice.models.UserRequest;
 import com.draganovik.userservice.models.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class UserController {
 
     @Autowired
     private FeignBankAccount feignBankAccount;
+
+    @Autowired
+    private FeignCryptoWallet feignCryptoWallet;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -137,11 +141,19 @@ public class UserController {
                     HttpStatus.I_AM_A_TEAPOT.value(),
                     "The service refuses to brew coffee because it is, permanently, a teapot.",
                     ZonedDateTime.now());
-            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.I_AM_A_TEAPOT);
+            return new ResponseEntity<>(errorResponse, HttpStatus.I_AM_A_TEAPOT);
         }
 
         userRepository.deleteByEmail(email);
-        feignBankAccount.deleteBankAccount(email);
+
+        if (deleteUser.get().getRole() == Role.USER) {
+            try {
+                feignBankAccount.deleteBankAccount(email);
+                feignCryptoWallet.deleteCryptoWallet(email);
+            } catch (Exception ignored) {
+            }
+        }
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

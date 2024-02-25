@@ -1,6 +1,7 @@
 package com.draganovik.cryptowallet;
 
 import com.draganovik.cryptowallet.exceptions.ExtendedExceptions;
+import com.draganovik.cryptowallet.feign.FeignBankAccount;
 import com.draganovik.cryptowallet.feign.FeignUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -23,6 +25,9 @@ public class CryptoWalletController {
 
     @Autowired
     private FeignUserService feignUserService;
+
+    @Autowired
+    private FeignBankAccount feignBankAccount;
 
 
     @GetMapping("self")
@@ -101,22 +106,36 @@ public class CryptoWalletController {
             throw new ExtendedExceptions.BadRequestException("Can't create crypto wallet for this profile.");
         }
 
-        ResponseEntity<UserFeignResponse> feignResponse;
+        ResponseEntity<FeignUserResponse> feignUserResponse;
 
         try {
-            feignResponse = feignUserService.getUserByEmail(email, operatorRole.name());
+            feignUserResponse = feignUserService.getUserByEmail(email, operatorRole.name());
         } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException(ex.getMessage());
+            throw new ExtendedExceptions.BadRequestException("Could not find user profile for requested email address.");
         }
 
-        if (feignResponse.getStatusCode() != HttpStatus.OK) {
+        if (feignUserResponse.getStatusCode() != HttpStatus.OK || feignUserResponse.getBody() == null) {
             throw new ExtendedExceptions.BadRequestException("Can't create crypto wallet. User profile doesn't exist.");
         }
 
-        UserFeignResponse feignUser = feignResponse.getBody();
-
-        if (feignUser == null || feignResponse.getBody().getRole() != Role.USER) {
+        if (feignUserResponse.getBody().getRole() != Role.USER) {
             throw new ExtendedExceptions.BadRequestException("Crypto wallet can only be created for profile type USER.");
+        }
+
+        ResponseEntity<FeignBankAccountResponse> feignBankAccountResponse;
+
+        try {
+            feignBankAccountResponse = feignBankAccount.getBankAccount(
+                    feignUserResponse.getBody().getRole().name(),
+                    feignUserResponse.getBody().getEmail());
+        } catch (Exception ex) {
+            throw new ExtendedExceptions.BadRequestException("Could not find bank account for requested user profile.");
+        }
+
+        if (feignBankAccountResponse.getStatusCode() != HttpStatus.OK &&
+                feignBankAccountResponse.getBody() == null
+                && !Objects.equals(feignBankAccountResponse.getBody().getEmail(), feignUserResponse.getBody().getEmail())) {
+            throw new ExtendedExceptions.BadRequestException("Can't create crypto wallet. Bank account doesn't exist.");
         }
 
         CryptoWallet wallet = cryptoWalletRepository.save(new CryptoWallet(email));
@@ -171,5 +190,15 @@ public class CryptoWalletController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{email}")
+    public ResponseEntity<?> deleteCryptoWalletByEmail(@PathVariable String email) throws Exception {
+        Optional<CryptoWallet> account = cryptoWalletRepository.findByEmail(email);
+        if (account.isEmpty()) {
+            throw new ExtendedExceptions.NotFoundException("There is no account associated with this email.");
+        }
+        cryptoWalletRepository.delete(account.get());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
