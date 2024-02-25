@@ -10,9 +10,12 @@ public class CurrencyConversionResponse {
 
     private final ZonedDateTime timestamp = ZonedDateTime.now();
 
-    public CurrencyConversionResponse(NestedFeignBankAccountResponse account, String message) {
+    private final String environment;
+
+    public CurrencyConversionResponse(NestedFeignBankAccountResponse account, String message, String environment) {
         this.message = message;
         this.accountBalance = account;
+        this.environment = environment;
     }
 
     public String getMessage() {
@@ -33,5 +36,9 @@ public class CurrencyConversionResponse {
 
     public void setAccountBalance(NestedFeignBankAccountResponse account) {
         this.accountBalance = account;
+    }
+
+    public String getEnvironment() {
+        return environment;
     }
 }

@@ -1,6 +1,7 @@
-package com.draganovik.cryptowallet.entities;
+package com.draganovik.cryptowallet;
 
-import com.draganovik.cryptowallet.CryptoWalletRepository;
+import com.draganovik.cryptowallet.entities.CryptoWallet;
+import com.draganovik.cryptowallet.entities.Role;
 import com.draganovik.cryptowallet.exceptions.ExtendedExceptions;
 import com.draganovik.cryptowallet.feign.FeignBankAccount;
 import com.draganovik.cryptowallet.feign.FeignUserService;

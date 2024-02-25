@@ -108,7 +108,10 @@ public class CurrencyConversionController {
         NestedFeignBankAccountResponse CCBAResponse =
                 new NestedFeignBankAccountResponse(bankAccountResponse.getBody());
 
-        CurrencyConversionResponse response = new CurrencyConversionResponse(CCBAResponse, "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".");
+        CurrencyConversionResponse response = new CurrencyConversionResponse(
+                CCBAResponse,
+                "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".",
+                environment.getProperty("local.server.port"));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
