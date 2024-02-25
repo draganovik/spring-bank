@@ -1,6 +1,5 @@
 package com.draganovik.userservice.feign;
 
-import com.draganovik.userservice.models.BankAccountFeignResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface FeignBankAccount {
 
     @PutMapping("/bank-account/{email}/email/{newEmail}")
-    ResponseEntity<BankAccountFeignResponse> updateBankAccount(@RequestParam String email, @RequestParam String newEmail);
+    ResponseEntity<?> updateBankAccount(@RequestParam String email, @RequestParam String newEmail);
 
     @DeleteMapping("/bank-account/{email}")
     void deleteBankAccount(@PathVariable String email);

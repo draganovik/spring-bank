@@ -1,9 +1,13 @@
 package com.draganovik.cryptowallet;
 
+import com.draganovik.cryptowallet.entities.CryptoWallet;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CryptoWalletRepository extends JpaRepository<CryptoWallet, Long> {
+import java.util.Optional;
+import java.util.UUID;
 
-    CryptoWallet getCryptoWalletByEmail(String email);
-
+@Repository
+public interface CryptoWalletRepository extends JpaRepository<CryptoWallet, UUID> {
+    Optional<CryptoWallet> findByEmail(String email);
 }

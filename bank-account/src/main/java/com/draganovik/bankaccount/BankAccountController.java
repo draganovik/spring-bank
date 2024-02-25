@@ -6,8 +6,7 @@ import com.draganovik.bankaccount.exceptions.ExtendedExceptions;
 import com.draganovik.bankaccount.feign.FeignUserService;
 import com.draganovik.bankaccount.models.BankAccountRequest;
 import com.draganovik.bankaccount.models.BankAccountResponse;
-import com.draganovik.bankaccount.models.UserFeignResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.draganovik.bankaccount.models.FeignUserResponse;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +20,17 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/bank-account")
 public class BankAccountController {
+    private final Environment environment;
+    private final BankAccountRepository bankAccountRepository;
+    private final FeignUserService feignUserService;
 
-    @Autowired
-    private Environment environment;
+    public BankAccountController(Environment environment, BankAccountRepository bankAccountRepository, FeignUserService feignUserService) {
+        this.feignUserService = feignUserService;
+        this.bankAccountRepository = bankAccountRepository;
+        this.environment = environment;
+    }
 
-    @Autowired
-    private BankAccountRepository bankAccountRepository;
-
-    @Autowired
-    private FeignUserService feignUserService;
-
-
-    @GetMapping()
+    @GetMapping("/self")
     public ResponseEntity<BankAccountResponse> getBankAccountByCurrentUser(HttpServletRequest request) throws Exception {
 
         String operatorEmail;
@@ -48,12 +46,11 @@ public class BankAccountController {
             throw new ExtendedExceptions.UnauthorizedException("Only logged in USERs can perform this action.");
         }
 
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(operatorEmail);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(operatorEmail);
 
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Requested bank account does not exist.");
         }
-
 
         BankAccountResponse response = new BankAccountResponse(
                 account.get().getId(),
@@ -72,7 +69,7 @@ public class BankAccountController {
     @GetMapping("/{email}")
     public ResponseEntity<BankAccountResponse> getBankAccountByEmail(@PathVariable String email, HttpServletRequest request) throws Exception {
 
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(email);
 
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Requested bank account does not exist.");
@@ -106,25 +103,25 @@ public class BankAccountController {
             throw new ExtendedExceptions.ForbiddenException("Only ADMIN can perform this action.");
         }
 
-        Optional<BankAccount> checkAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> checkAccount = bankAccountRepository.findByEmail(email);
 
         if (checkAccount.isPresent()) {
             throw new ExtendedExceptions.BadRequestException("Can't create bank account for this profile.");
         }
 
-        ResponseEntity<UserFeignResponse> feignResponse;
+        ResponseEntity<FeignUserResponse> feignResponse;
 
         try {
             feignResponse = feignUserService.getUserByEmail(email, operatorRole.name());
         } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException(ex.getMessage());
+            throw new ExtendedExceptions.BadRequestException("Can't create bank account. Can't find user profile for provided email.");
         }
 
         if (feignResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.BadRequestException("Can't create bank account. User profile doesn't exist.");
         }
 
-        UserFeignResponse feignUser = feignResponse.getBody();
+        FeignUserResponse feignUser = feignResponse.getBody();
 
         if (feignUser == null || feignResponse.getBody().getRole() != Role.USER) {
             throw new ExtendedExceptions.BadRequestException("Accounts can only be created for profile type USER.");
@@ -160,14 +157,13 @@ public class BankAccountController {
             throw new ExtendedExceptions.ForbiddenException("Only ADMIN can perform this action.");
         }
 
-        Optional<BankAccount> optionalAccount = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> optionalAccount = bankAccountRepository.findByEmail(email);
 
         if (optionalAccount.isEmpty()) {
             throw new RuntimeException("Bank account you want to update is not found!");
         }
 
         BankAccount account = optionalAccount.get();
-
 
         account.setQuantityRSD(accountRequest.getQuantityRSD());
         account.setQuantityEUR(accountRequest.getQuantityEUR());
@@ -193,12 +189,11 @@ public class BankAccountController {
 
     @DeleteMapping("/{email}")
     public ResponseEntity<?> deleteBankAccountByEmail(@PathVariable @Email @Valid String email) throws Exception {
-        Optional<BankAccount> account = bankAccountRepository.getBankAccountByEmail(email);
+        Optional<BankAccount> account = bankAccountRepository.findByEmail(email);
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("There is no account associated with this email.");
         }
         bankAccountRepository.delete(account.get());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

@@ -4,14 +4,12 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "bank_accounts")
+@Table(indexes = @Index(columnList = "email"))
 public class BankAccount {
 
     @Id
@@ -28,19 +26,19 @@ public class BankAccount {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "quantity_RSD")
+    @Column(name = "quantity_RSD", precision = 14, scale = 2)
     private BigDecimal quantityRSD = BigDecimal.ZERO;
 
-    @Column(name = "quantity_EUR")
+    @Column(name = "quantity_EUR", precision = 14, scale = 2)
     private BigDecimal quantityEUR = BigDecimal.ZERO;
 
-    @Column(name = "quantity_GBP")
+    @Column(name = "quantity_GBP", precision = 14, scale = 2)
     private BigDecimal quantityGBP = BigDecimal.ZERO;
 
-    @Column(name = "quantity_USD")
+    @Column(name = "quantity_USD", precision = 14, scale = 2)
     private BigDecimal quantityUSD = BigDecimal.ZERO;
 
-    @Column(name = "quantity_CHF")
+    @Column(name = "quantity_CHF", precision = 14, scale = 2)
     private BigDecimal quantityCHF = BigDecimal.ZERO;
 
     public BankAccount() {

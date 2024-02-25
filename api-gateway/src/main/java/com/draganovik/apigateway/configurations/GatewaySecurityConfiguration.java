@@ -24,32 +24,33 @@ public class GatewaySecurityConfiguration {
         http.csrf().disable().authorizeExchange()
                 .pathMatchers("/user-service/register").permitAll()
                 .pathMatchers("/user-service/validate").permitAll()
+
                 .pathMatchers(HttpMethod.GET, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.POST, "/user-service/users").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.GET, "/user-service/users/{email}").hasAnyRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/user-service/users/{email}").hasAnyRole("ADMIN", "OWNER")
                 .pathMatchers(HttpMethod.DELETE, "/user-service/users/{email}").hasAnyRole("OWNER")
 
-                .pathMatchers("/currency-exchange/**").permitAll()
-
-                .pathMatchers(HttpMethod.GET, "/bank-account").hasRole("USER")
+                .pathMatchers(HttpMethod.GET, "/bank-account/self").hasRole("USER")
+                .pathMatchers(HttpMethod.POST, "/bank-account/{email}/withdraw").hasAnyRole("ADMIN", "USER")
+                .pathMatchers(HttpMethod.POST, "/bank-account/{email}/deposit").permitAll()
                 .pathMatchers(HttpMethod.GET, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/bank-account/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/bank-account/{email}").hasRole("ADMIN")
 
-                .pathMatchers(HttpMethod.GET, "/crypto-wallet").hasRole("USER")
+                .pathMatchers(HttpMethod.GET, "/crypto-wallet/self").hasRole("USER")
                 .pathMatchers(HttpMethod.GET, "/crypto-wallet/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.POST, "/crypto-wallet/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.PUT, "/crypto-wallet/{email}").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/crypto-wallet/{email}").hasRole("ADMIN")
 
 
-                .pathMatchers("/crypto-exchange/**").hasAnyRole()
+                .pathMatchers("/crypto-exchange/**").permitAll()
+                .pathMatchers("/currency-exchange/**").permitAll()
 
                 .pathMatchers("/currency-conversion/**").hasRole("USER")
-
                 .pathMatchers("/crypto-conversion/**").hasRole("USER")
 
                 .pathMatchers("/trade-service/**").hasRole("USER")

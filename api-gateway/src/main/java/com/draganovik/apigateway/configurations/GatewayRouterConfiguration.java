@@ -16,6 +16,9 @@ public class GatewayRouterConfiguration {
         GatewayRouteMapper.mapRoutesBankAccount(rlb);
         GatewayRouteMapper.mapRoutesCurrencyConversion(rlb);
         GatewayRouteMapper.mapRoutesCurrencyExchange(rlb);
+        GatewayRouteMapper.mapRoutesCryptoWallet(rlb);
+        GatewayRouteMapper.mapRoutesCryptoExchange(rlb);
+        GatewayRouteMapper.mapRoutesCryptoConversion(rlb);
         return rlb.build();
     }
 }

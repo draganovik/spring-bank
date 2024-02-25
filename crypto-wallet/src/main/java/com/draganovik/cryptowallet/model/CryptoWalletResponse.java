@@ -1,52 +1,32 @@
-package com.draganovik.cryptowallet;
+package com.draganovik.cryptowallet.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+
 import java.math.BigDecimal;
+import java.util.UUID;
 
-@Entity
-public class CryptoWallet {
+public class CryptoWalletResponse {
 
-    @Id
-    private long id;
-
-    @Column(unique = true)
+    private UUID id;
     private String email;
-
-    @Column(name = "quantity_BTC")
     private BigDecimal quantityBTC;
-
-    @Column(name = "quantity_ETH")
     private BigDecimal quantityETH;
-
-    @Column(name = "quantity_BNB")
-    private BigDecimal quantityBNB;
-
-    @Transient
+    private BigDecimal quantityDOGE;
     private String environment;
 
-    public CryptoWallet() {
-        super();
-    }
-
-    public CryptoWallet(long id, String email, BigDecimal quantityBTC, BigDecimal quantityETH,
-                        BigDecimal quantityBNB, String environment) {
-        super();
+    public CryptoWalletResponse(UUID id, String email, BigDecimal quantityBTC, BigDecimal quantityETH, BigDecimal quantityDOGE, String environment) {
         this.id = id;
         this.email = email;
         this.quantityBTC = quantityBTC;
         this.quantityETH = quantityETH;
-        this.quantityBNB = quantityBNB;
+        this.quantityDOGE = quantityDOGE;
         this.environment = environment;
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -74,12 +54,12 @@ public class CryptoWallet {
         this.quantityETH = quantityETH;
     }
 
-    public BigDecimal getQuantityBNB() {
-        return quantityBNB;
+    public BigDecimal getQuantityDOGE() {
+        return quantityDOGE;
     }
 
-    public void setQuantityBNB(BigDecimal quantityBNB) {
-        this.quantityBNB = quantityBNB;
+    public void setQuantityDOGE(BigDecimal quantityDOGE) {
+        this.quantityDOGE = quantityDOGE;
     }
 
     public String getEnvironment() {
@@ -89,5 +69,4 @@ public class CryptoWallet {
     public void setEnvironment(String environment) {
         this.environment = environment;
     }
-
 }
