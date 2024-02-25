@@ -7,7 +7,6 @@ import com.draganovik.bankaccount.feign.FeignUserService;
 import com.draganovik.bankaccount.models.BankAccountRequest;
 import com.draganovik.bankaccount.models.BankAccountResponse;
 import com.draganovik.bankaccount.models.UserFeignResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +20,17 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/bank-account")
 public class BankAccountController {
+    private final Environment environment;
+    private final BankAccountRepository bankAccountRepository;
+    private final FeignUserService feignUserService;
 
-    @Autowired
-    private Environment environment;
+    public BankAccountController(Environment environment, BankAccountRepository bankAccountRepository, FeignUserService feignUserService) {
+        this.feignUserService = feignUserService;
+        this.bankAccountRepository = bankAccountRepository;
+        this.environment = environment;
+    }
 
-    @Autowired
-    private BankAccountRepository bankAccountRepository;
-
-    @Autowired
-    private FeignUserService feignUserService;
-
-
-    @GetMapping()
+    @GetMapping("/self")
     public ResponseEntity<BankAccountResponse> getBankAccountByCurrentUser(HttpServletRequest request) throws Exception {
 
         String operatorEmail;
@@ -53,7 +51,6 @@ public class BankAccountController {
         if (account.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Requested bank account does not exist.");
         }
-
 
         BankAccountResponse response = new BankAccountResponse(
                 account.get().getId(),
@@ -199,5 +196,4 @@ public class BankAccountController {
         bankAccountRepository.delete(account.get());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

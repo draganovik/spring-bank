@@ -25,7 +25,7 @@ public class CryptoWalletController {
     private FeignUserService feignUserService;
 
 
-    @GetMapping()
+    @GetMapping("self")
     public ResponseEntity<CryptoWalletResponse> getCryptoWalletByCurrentUser(HttpServletRequest request) throws Exception {
 
         String operatorEmail;
