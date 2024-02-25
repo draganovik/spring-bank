@@ -4,14 +4,12 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "bank_accounts")
+@Table(indexes = @Index(columnList = "email"))
 public class BankAccount {
 
     @Id
