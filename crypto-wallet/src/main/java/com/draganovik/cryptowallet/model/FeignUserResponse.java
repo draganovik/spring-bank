@@ -1,4 +1,6 @@
-package com.draganovik.cryptowallet;
+package com.draganovik.cryptowallet.model;
+
+import com.draganovik.cryptowallet.entities.Role;
 
 import java.util.UUID;
 

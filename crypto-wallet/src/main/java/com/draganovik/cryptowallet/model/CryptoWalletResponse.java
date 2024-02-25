@@ -1,4 +1,4 @@
-package com.draganovik.cryptowallet;
+package com.draganovik.cryptowallet.model;
 
 
 import java.math.BigDecimal;

@@ -1,8 +1,12 @@
-package com.draganovik.cryptowallet;
+package com.draganovik.cryptowallet.entities;
 
+import com.draganovik.cryptowallet.CryptoWalletRepository;
 import com.draganovik.cryptowallet.exceptions.ExtendedExceptions;
 import com.draganovik.cryptowallet.feign.FeignBankAccount;
 import com.draganovik.cryptowallet.feign.FeignUserService;
+import com.draganovik.cryptowallet.model.CryptoWalletResponse;
+import com.draganovik.cryptowallet.model.FeignBankAccountResponse;
+import com.draganovik.cryptowallet.model.FeignUserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;

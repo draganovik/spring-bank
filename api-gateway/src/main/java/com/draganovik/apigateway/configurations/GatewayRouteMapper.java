@@ -16,6 +16,10 @@ public class GatewayRouteMapper {
         rlb.route(p -> p.path("/currency-exchange/**").uri("lb://currency-exchange"));
     }
 
+    public static void mapRoutesCryptoExchange(RouteLocatorBuilder.Builder rlb) {
+        rlb.route(p -> p.path("/crypto-exchange/**").uri("lb://crypto-exchange"));
+    }
+
     public static void mapRoutesCryptoWallet(RouteLocatorBuilder.Builder rlb) {
         rlb.route(p -> p.path("/crypto-wallet/**").uri("lb://crypto-wallet"));
     }

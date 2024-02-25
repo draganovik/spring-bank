@@ -6,11 +6,11 @@ public class CurrencyConversionResponse {
 
     String message;
 
-    CurrencyConversionBankAccountResponse accountBalance;
+    NestedFeignBankAccountResponse accountBalance;
 
     private final ZonedDateTime timestamp = ZonedDateTime.now();
 
-    public CurrencyConversionResponse(CurrencyConversionBankAccountResponse account, String message) {
+    public CurrencyConversionResponse(NestedFeignBankAccountResponse account, String message) {
         this.message = message;
         this.accountBalance = account;
     }
@@ -27,11 +27,11 @@ public class CurrencyConversionResponse {
         return timestamp;
     }
 
-    public CurrencyConversionBankAccountResponse getAccountBalance() {
+    public NestedFeignBankAccountResponse getAccountBalance() {
         return accountBalance;
     }
 
-    public void setAccountBalance(CurrencyConversionBankAccountResponse account) {
+    public void setAccountBalance(NestedFeignBankAccountResponse account) {
         this.accountBalance = account;
     }
 }

@@ -1,5 +1,6 @@
 package com.draganovik.cryptowallet;
 
+import com.draganovik.cryptowallet.entities.CryptoWallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

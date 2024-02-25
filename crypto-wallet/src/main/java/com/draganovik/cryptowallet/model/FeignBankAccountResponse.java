@@ -1,23 +1,33 @@
-package com.draganovik.currencyconversion.models;
+package com.draganovik.cryptowallet.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
-public class CurrencyConversionBankAccountResponse {
+public class FeignBankAccountResponse {
+    private UUID id;
+    private String email;
     private BigDecimal quantityRSD;
     private BigDecimal quantityEUR;
     private BigDecimal quantityGBP;
     private BigDecimal quantityUSD;
     private BigDecimal quantityCHF;
 
-    public CurrencyConversionBankAccountResponse() {
+    private String environment;
+
+    public UUID getId() {
+        return id;
     }
 
-    public CurrencyConversionBankAccountResponse(BankAccountFeignResponse accountFeignResponse) {
-        this.setQuantityRSD(accountFeignResponse.getQuantityRSD());
-        this.setQuantityEUR(accountFeignResponse.getQuantityEUR());
-        this.setQuantityGBP(accountFeignResponse.getQuantityGBP());
-        this.setQuantityUSD(accountFeignResponse.getQuantityUSD());
-        this.setQuantityCHF(accountFeignResponse.getQuantityCHF());
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public BigDecimal getQuantityRSD() {
@@ -58,5 +68,13 @@ public class CurrencyConversionBankAccountResponse {
 
     public void setQuantityCHF(BigDecimal quantityCHF) {
         this.quantityCHF = quantityCHF;
+    }
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(String environment) {
+        this.environment = environment;
     }
 }

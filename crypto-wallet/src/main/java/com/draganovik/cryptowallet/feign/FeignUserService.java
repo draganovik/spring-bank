@@ -1,6 +1,6 @@
 package com.draganovik.cryptowallet.feign;
 
-import com.draganovik.cryptowallet.FeignUserResponse;
+import com.draganovik.cryptowallet.model.FeignUserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

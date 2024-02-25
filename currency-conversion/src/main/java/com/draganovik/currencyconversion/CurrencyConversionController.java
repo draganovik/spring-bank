@@ -3,12 +3,12 @@ package com.draganovik.currencyconversion;
 import com.draganovik.currencyconversion.entities.CurrencyCode;
 import com.draganovik.currencyconversion.entities.Role;
 import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
+import com.draganovik.currencyconversion.feign.FeignBankAccount;
 import com.draganovik.currencyconversion.feign.FeignCurrencyExchange;
-import com.draganovik.currencyconversion.feign.FeignFeignBankAccount;
-import com.draganovik.currencyconversion.models.BankAccountFeignResponse;
-import com.draganovik.currencyconversion.models.CurrencyConversionBankAccountResponse;
 import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
-import com.draganovik.currencyconversion.models.CurrencyExchangeFeignResponse;
+import com.draganovik.currencyconversion.models.FeignBankAccountResponse;
+import com.draganovik.currencyconversion.models.FeignCurrencyExchangeResponse;
+import com.draganovik.currencyconversion.models.NestedFeignBankAccountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -27,14 +27,13 @@ public class CurrencyConversionController {
     private Environment environment;
 
     @Autowired
-    private FeignFeignBankAccount feignBankAccount;
+    private FeignBankAccount feignBankAccount;
 
     @Autowired
     private FeignCurrencyExchange feignCurrencyExchange;
 
     @PostMapping()
     public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
-
         String operatorEmail;
         Role operatorRole;
         try {
@@ -48,14 +47,14 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.UnauthorizedException("Only logged in USERs can perform this action.");
         }
 
-        ResponseEntity<BankAccountFeignResponse> bankAccountResponse =
+        ResponseEntity<FeignBankAccountResponse> bankAccountResponse =
                 feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
 
         if (bankAccountResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        BankAccountFeignResponse bankAccount = bankAccountResponse.getBody();
+        FeignBankAccountResponse bankAccount = bankAccountResponse.getBody();
 
         if (bankAccount == null) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
@@ -75,13 +74,17 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + from + " is not supported.");
         }
 
-        ResponseEntity<CurrencyExchangeFeignResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(fromCC.name(), toCC.name());
+        if (toCC == fromCC) {
+            throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
+        }
+
+        ResponseEntity<FeignCurrencyExchangeResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(fromCC.name(), toCC.name());
 
         if (currencyExchangeResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
         }
 
-        CurrencyExchangeFeignResponse exchange = currencyExchangeResponse.getBody();
+        FeignCurrencyExchangeResponse exchange = currencyExchangeResponse.getBody();
 
         if (exchange == null) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
@@ -102,8 +105,8 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        CurrencyConversionBankAccountResponse CCBAResponse =
-                new CurrencyConversionBankAccountResponse(bankAccountResponse.getBody());
+        NestedFeignBankAccountResponse CCBAResponse =
+                new NestedFeignBankAccountResponse(bankAccountResponse.getBody());
 
         CurrencyConversionResponse response = new CurrencyConversionResponse(CCBAResponse, "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".");
 

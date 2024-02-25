@@ -2,17 +2,17 @@ package com.draganovik.currencyconversion.models;
 
 import java.math.BigDecimal;
 
-public class CurrencyExchangeFeignResponse {
+public class FeignCurrencyExchangeResponse {
 
     private String from;
     private String to;
     private BigDecimal conversionMultiple;
     private String environment;
 
-    public CurrencyExchangeFeignResponse() {
+    public FeignCurrencyExchangeResponse() {
     }
 
-    public CurrencyExchangeFeignResponse(String from, String to, BigDecimal conversionMultiple, String environment) {
+    public FeignCurrencyExchangeResponse(String from, String to, BigDecimal conversionMultiple, String environment) {
         setFrom(from);
         setTo(to);
         setConversionMultiple(conversionMultiple);

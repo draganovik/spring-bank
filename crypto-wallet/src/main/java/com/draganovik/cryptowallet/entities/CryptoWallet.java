@@ -1,4 +1,4 @@
-package com.draganovik.cryptowallet;
+package com.draganovik.cryptowallet.entities;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
