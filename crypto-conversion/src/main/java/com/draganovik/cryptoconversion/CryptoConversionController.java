@@ -1,14 +1,14 @@
-package com.draganovik.currencyconversion;
+package com.draganovik.cryptoconversion;
 
-import com.draganovik.currencyconversion.entities.CurrencyCode;
-import com.draganovik.currencyconversion.entities.Role;
-import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
-import com.draganovik.currencyconversion.feign.FeignBankAccount;
-import com.draganovik.currencyconversion.feign.FeignCurrencyExchange;
-import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
-import com.draganovik.currencyconversion.models.FeignBankAccountResponse;
-import com.draganovik.currencyconversion.models.FeignCurrencyExchangeResponse;
-import com.draganovik.currencyconversion.models.NestedFeignBankAccountResponse;
+import com.draganovik.cryptoconversion.entities.CryptoCode;
+import com.draganovik.cryptoconversion.entities.Role;
+import com.draganovik.cryptoconversion.exceptions.ExtendedExceptions;
+import com.draganovik.cryptoconversion.feign.FeignCryptoExchange;
+import com.draganovik.cryptoconversion.feign.FeignCryptoWallet;
+import com.draganovik.cryptoconversion.models.CryptoConversionResponse;
+import com.draganovik.cryptoconversion.models.FeignCryptoExchangeResponse;
+import com.draganovik.cryptoconversion.models.FeignCryptoWalletResponse;
+import com.draganovik.cryptoconversion.models.NestedFeignCryptoWalletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -20,20 +20,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/currency-conversion")
-public class CurrencyConversionController {
+@RequestMapping("/crypto-conversion")
+public class CryptoConversionController {
 
     @Autowired
     private Environment environment;
 
     @Autowired
-    private FeignBankAccount feignBankAccount;
+    private FeignCryptoWallet cryptoWallet;
 
     @Autowired
-    private FeignCurrencyExchange feignCurrencyExchange;
+    private FeignCryptoExchange feignCryptoExchange;
 
     @PostMapping()
-    public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CryptoConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
         String operatorEmail;
         Role operatorRole;
         try {
@@ -47,29 +47,29 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.UnauthorizedException("Only logged in USERs can perform this action.");
         }
 
-        ResponseEntity<FeignBankAccountResponse> bankAccountResponse =
-                feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+        ResponseEntity<FeignCryptoWalletResponse> cryptoWalletResponse =
+                cryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
 
-        if (bankAccountResponse.getStatusCode() != HttpStatus.OK) {
+        if (cryptoWalletResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        FeignBankAccountResponse bankAccount = bankAccountResponse.getBody();
+        FeignCryptoWalletResponse cryptoWallet = cryptoWalletResponse.getBody();
 
-        if (bankAccount == null) {
+        if (cryptoWallet == null) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        CurrencyCode toCC;
+        CryptoCode toCC;
         try {
-            toCC = CurrencyCode.valueOf(to);
+            toCC = CryptoCode.valueOf(to);
         } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
         }
 
-        CurrencyCode fromCC;
+        CryptoCode fromCC;
         try {
-            fromCC = CurrencyCode.valueOf(from);
+            fromCC = CryptoCode.valueOf(from);
         } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'from' currency: " + from + " is not supported.");
         }
@@ -78,38 +78,38 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
         }
 
-        ResponseEntity<FeignCurrencyExchangeResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(fromCC.name(), toCC.name());
+        ResponseEntity<FeignCryptoExchangeResponse> cryptoExchangeResponse = feignCryptoExchange.getExchange(fromCC.name(), toCC.name());
 
-        if (currencyExchangeResponse.getStatusCode() != HttpStatus.OK) {
+        if (cryptoExchangeResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
         }
 
-        FeignCurrencyExchangeResponse exchange = currencyExchangeResponse.getBody();
+        FeignCryptoExchangeResponse exchange = cryptoExchangeResponse.getBody();
 
         if (exchange == null) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
         }
 
-        BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(BigDecimal.valueOf(quantity));
+        BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(quantity);
 
-        feignBankAccount.accountExchangeWithdraw(fromCC.name(), quantity, bankAccount.getEmail(),
+        this.cryptoWallet.cryptoWalletWithdraw(fromCC.name(), quantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
-        feignBankAccount.accountExchangeDeposit(toCC.name(), convertedQuantity.doubleValue(), bankAccount.getEmail(),
+        this.cryptoWallet.cryptoWalletDeposit(toCC.name(), convertedQuantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
-        bankAccountResponse =
-                feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+        cryptoWalletResponse =
+                this.cryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
 
-        if (bankAccountResponse.getStatusCode() != HttpStatus.OK || bankAccountResponse.getBody() == null) {
+        if (cryptoWalletResponse.getStatusCode() != HttpStatus.OK || cryptoWalletResponse.getBody() == null) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        NestedFeignBankAccountResponse CCBAResponse =
-                new NestedFeignBankAccountResponse(bankAccountResponse.getBody());
+        NestedFeignCryptoWalletResponse nestedWallet =
+                new NestedFeignCryptoWalletResponse(cryptoWalletResponse.getBody());
 
-        CurrencyConversionResponse response = new CurrencyConversionResponse(
-                CCBAResponse,
+        CryptoConversionResponse response = new CryptoConversionResponse(
+                nestedWallet,
                 "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".",
                 environment.getProperty("local.server.port"));
 
