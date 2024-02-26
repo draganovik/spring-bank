@@ -35,4 +35,8 @@ public class GatewayRouteMapper {
                         .filters(f -> f.rewritePath("currency-conversion", "currency-conversion-feign"))
                         .uri("lb://currency-conversion"));*/
     }
+
+    public static void mapRoutesTransferService(RouteLocatorBuilder.Builder rlb) {
+        rlb.route(p -> p.path("/transfer-service/**").uri("lb://transfer-service"));
+    }
 }
