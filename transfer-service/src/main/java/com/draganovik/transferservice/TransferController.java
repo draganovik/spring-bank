@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequestMapping("/transfer-service")
 public class TransferController {
 
-    private Environment environment;
+    private final Environment environment;
     private final FeignCryptoWallet feignCryptoWallet;
 
     private final FeignBankAccount feignBankAccount;

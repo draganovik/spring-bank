@@ -20,6 +20,7 @@ public class GatewayRouterConfiguration {
         GatewayRouteMapper.mapRoutesCryptoExchange(rlb);
         GatewayRouteMapper.mapRoutesCryptoConversion(rlb);
         GatewayRouteMapper.mapRoutesTransferService(rlb);
+        GatewayRouteMapper.mapRoutesTradeService(rlb);
         return rlb.build();
     }
 }
