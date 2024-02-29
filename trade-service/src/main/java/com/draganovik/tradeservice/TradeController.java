@@ -9,11 +9,9 @@ import com.draganovik.tradeservice.feign.FeignBankAccount;
 import com.draganovik.tradeservice.feign.FeignCryptoWallet;
 import com.draganovik.tradeservice.feign.FeignCurrencyConversion;
 import com.draganovik.tradeservice.feign.FeignCurrencyExchange;
-import com.draganovik.tradeservice.models.FeignBankAccountResponse;
-import com.draganovik.tradeservice.models.FeignCryptoWalletResponse;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,23 +69,9 @@ public class TradeController {
             throw new ExtendedExceptions.UnauthorizedException("Request is not authorized.");
         }
 
-        ResponseEntity<FeignBankAccountResponse> initialBankAccountResponse = feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
-        ResponseEntity<FeignCryptoWalletResponse> initialCryptoWalletResponse = feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
-
-        if (initialBankAccountResponse.getStatusCode() != HttpStatus.OK || initialCryptoWalletResponse.getStatusCode() != HttpStatus.OK) {
-            throw new ExtendedExceptions.BadRequestException("Could not get response from downstream services.");
-        }
-
-        FeignBankAccountResponse initialBankAccount = initialBankAccountResponse.getBody();
-        FeignCryptoWalletResponse initialCryptoWallet = initialCryptoWalletResponse.getBody();
-
         if (cryptoCurrencies.contains(from) && supportedFiatCurrencies.contains(to)) {
             CryptoCode fromCrypto = CryptoCode.valueOf(from);
             FiatCode toFiat = FiatCode.valueOf(to);
-
-            if (!hasAvailableCryptoBalance(initialCryptoWallet, fromCrypto, quantity)) {
-                throw new ExtendedExceptions.BadRequestException("Not enough balance to convert from: " + fromCrypto.name() + ".");
-            }
 
             Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromCrypto.name(), toFiat.name());
 
@@ -95,34 +79,29 @@ public class TradeController {
                 throw new ExtendedExceptions.BadRequestException("No data for conversion from" + from + " to " + to);
             }
 
-            ResponseEntity<FeignCryptoWalletResponse> cryptoWalletResponse =
-                    feignCryptoWallet.cryptoWalletWithdraw(fromCrypto.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
-
-            if (cryptoWalletResponse.getStatusCode() != HttpStatus.ACCEPTED) {
-                return cryptoWalletResponse;
+            try {
+                feignCryptoWallet.cryptoWalletWithdraw(fromCrypto.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
 
             BigDecimal depositQuantity = quantity.multiply(tradeExchangeOptional.get().getConversionMultiple());
 
-            ResponseEntity<FeignBankAccountResponse> bankAccountResponse =
-                    feignBankAccount.accountExchangeDeposit(
-                            toFiat.name(),
-                            depositQuantity,
-                            operatorEmail,
-                            operatorRole.name(),
-                            operatorEmail);
+            try {
+                feignBankAccount.accountExchangeDeposit(
+                        toFiat.name(),
+                        depositQuantity,
+                        operatorEmail,
+                        operatorRole.name(),
+                        operatorEmail);
 
-            if (bankAccountResponse.getStatusCode() != HttpStatus.ACCEPTED) {
-                return bankAccountResponse;
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
             return feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
         } else if (supportedFiatCurrencies.contains(from) && cryptoCurrencies.contains(to)) {
             FiatCode fromFiat = FiatCode.valueOf(from);
             CryptoCode toCrypto = CryptoCode.valueOf(to);
-
-            if (!hasAvailableFiatBalance(initialBankAccount, fromFiat, quantity)) {
-                throw new ExtendedExceptions.BadRequestException("Not enough balance to convert from: " + fromFiat.name() + ".");
-            }
 
             Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromFiat.name(), toCrypto.name());
 
@@ -130,58 +109,29 @@ public class TradeController {
                 throw new ExtendedExceptions.BadRequestException("No data for conversion from" + from + " to " + to);
             }
 
-            ResponseEntity<FeignBankAccountResponse> bankAccountResponse =
-                    feignBankAccount.accountExchangeWithdraw(fromFiat.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
-
-            if (bankAccountResponse.getStatusCode() != HttpStatus.ACCEPTED) {
-                return bankAccountResponse;
+            try {
+                feignBankAccount.accountExchangeWithdraw(fromFiat.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
 
             BigDecimal depositQuantity = quantity.multiply(tradeExchangeOptional.get().getConversionMultiple());
 
-            ResponseEntity<FeignCryptoWalletResponse> cryptoWalletResponse =
-                    feignCryptoWallet.cryptoWalletDeposit(
-                            toCrypto.name(),
-                            depositQuantity,
-                            operatorEmail,
-                            operatorRole.name(),
-                            operatorEmail);
-
-            if (cryptoWalletResponse.getStatusCode() != HttpStatus.ACCEPTED) {
-                return cryptoWalletResponse;
+            try {
+                feignCryptoWallet.cryptoWalletDeposit(
+                        toCrypto.name(),
+                        depositQuantity,
+                        operatorEmail,
+                        operatorRole.name(),
+                        operatorEmail);
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
+
             return feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
 
         } else {
             throw new ExtendedExceptions.BadRequestException("Trade with provided parameters: from: " + from + ", to: " + to + "is not supported.");
         }
-    }
-
-    private Boolean hasAvailableFiatBalance(FeignBankAccountResponse bankAccount, FiatCode code, BigDecimal amount) {
-        switch (code) {
-            case USD:
-                return bankAccount.getQuantityUSD().compareTo(amount) >= 0;
-            case EUR:
-                return bankAccount.getQuantityEUR().compareTo(amount) >= 0;
-            case RSD:
-                return bankAccount.getQuantityRSD().compareTo(amount) >= 0;
-            case GBP:
-                return bankAccount.getQuantityGBP().compareTo(amount) >= 0;
-            case CHF:
-                return bankAccount.getQuantityCHF().compareTo(amount) >= 0;
-        }
-        return false;
-    }
-
-    private Boolean hasAvailableCryptoBalance(FeignCryptoWalletResponse cryptoWallet, CryptoCode code, BigDecimal amount) {
-        switch (code) {
-            case BTC:
-                return cryptoWallet.getQuantityBTC().compareTo(amount) >= 0;
-            case ETH:
-                return cryptoWallet.getQuantityETH().compareTo(amount) >= 0;
-            case DOGE:
-                return cryptoWallet.getQuantityDOGE().compareTo(amount) >= 0;
-        }
-        return false;
     }
 }
