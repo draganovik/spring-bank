@@ -4,13 +4,10 @@ import java.time.ZonedDateTime;
 
 public class TradeCurrencyResponse {
 
-    String message;
-
-    FeignNestedFeignBankAccountResponse accountBalance;
-
     private final ZonedDateTime timestamp = ZonedDateTime.now();
-
     private final String environment;
+    private String message;
+    private FeignNestedFeignBankAccountResponse accountBalance;
 
     public TradeCurrencyResponse(FeignNestedFeignBankAccountResponse account, String message, String environment) {
         this.message = message;

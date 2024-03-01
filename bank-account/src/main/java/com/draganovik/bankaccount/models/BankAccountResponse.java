@@ -12,7 +12,6 @@ public class BankAccountResponse {
     private BigDecimal quantityGBP;
     private BigDecimal quantityUSD;
     private BigDecimal quantityCHF;
-
     private String environment;
 
     public BankAccountResponse() {

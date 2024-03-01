@@ -30,23 +30,16 @@ import java.util.Optional;
 @RequestMapping("/trade-service")
 public class TradeController {
 
+    private final TradeExchangeRepository tradeExchangeRepository;
+    private final FeignCurrencyExchange feignCurrencyExchange;
+    private final FeignCurrencyConversion feignCurrencyConversion;
+    private final FeignBankAccount feignBankAccount;
+    private final FeignCryptoWallet feignCryptoWallet;
+    private final Environment environment;
     @Value("#{'${currencies.crypto.suppored}'.split(',')}")
     private List<String> cryptoCurrencies;
-
     @Value("#{'${currencies.fiat.supported}'.split(',')}")
     private List<String> supportedFiatCurrencies;
-
-    private final TradeExchangeRepository tradeExchangeRepository;
-
-    private final FeignCurrencyExchange feignCurrencyExchange;
-
-    private final FeignCurrencyConversion feignCurrencyConversion;
-
-    private final FeignBankAccount feignBankAccount;
-
-    private final FeignCryptoWallet feignCryptoWallet;
-
-    private final Environment environment;
 
     public TradeController(TradeExchangeRepository tradeExchangeRepository, FeignCurrencyExchange feignCurrencyExchange, FeignCurrencyConversion feignCurrencyConversion, FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet, Environment environment) {
         this.tradeExchangeRepository = tradeExchangeRepository;

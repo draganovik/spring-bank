@@ -4,13 +4,10 @@ import java.time.ZonedDateTime;
 
 public class CryptoConversionResponse {
 
-    String message;
-
-    NestedFeignCryptoWalletResponse accountBalance;
-
     private final ZonedDateTime timestamp = ZonedDateTime.now();
-
     private final String environment;
+    private String message;
+    private NestedFeignCryptoWalletResponse accountBalance;
 
     public CryptoConversionResponse(NestedFeignCryptoWalletResponse account, String message, String environment) {
         this.message = message;
