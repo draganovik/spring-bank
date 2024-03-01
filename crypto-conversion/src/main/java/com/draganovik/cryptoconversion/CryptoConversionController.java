@@ -35,9 +35,14 @@ public class CryptoConversionController {
     }
 
     @PostMapping()
-    public ResponseEntity<CryptoConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CryptoConversionResponse> performConversion(@RequestParam CryptoCode from, @RequestParam CryptoCode to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
         String operatorEmail;
         Role operatorRole;
+
+        if (to == from) {
+            throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
+        }
+
         try {
             operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
             operatorEmail = request.getHeader("X-User-Email");
@@ -62,25 +67,7 @@ public class CryptoConversionController {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        CryptoCode toCC;
-        try {
-            toCC = CryptoCode.valueOf(to);
-        } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
-        }
-
-        CryptoCode fromCC;
-        try {
-            fromCC = CryptoCode.valueOf(from);
-        } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException("Provided 'from' currency: " + from + " is not supported.");
-        }
-
-        if (toCC == fromCC) {
-            throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
-        }
-
-        ResponseEntity<FeignCryptoExchangeResponse> cryptoExchangeResponse = feignCryptoExchange.getExchange(fromCC.name(), toCC.name());
+        ResponseEntity<FeignCryptoExchangeResponse> cryptoExchangeResponse = feignCryptoExchange.getExchange(from.name(), to.name());
 
         if (cryptoExchangeResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
@@ -94,10 +81,10 @@ public class CryptoConversionController {
 
         BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(quantity);
 
-        this.cryptoWallet.cryptoWalletWithdraw(fromCC.name(), quantity, cryptoWallet.getEmail(),
+        this.cryptoWallet.cryptoWalletWithdraw(from.name(), quantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
-        this.cryptoWallet.cryptoWalletDeposit(toCC.name(), convertedQuantity, cryptoWallet.getEmail(),
+        this.cryptoWallet.cryptoWalletDeposit(to.name(), convertedQuantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
         cryptoWalletResponse =
@@ -112,7 +99,7 @@ public class CryptoConversionController {
 
         CryptoConversionResponse response = new CryptoConversionResponse(
                 nestedWallet,
-                "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".",
+                "Successful! Converted " + quantity + " " + from.name() + " to " + to.name() + ".",
                 environment.getProperty("local.server.port"));
 
         return new ResponseEntity<>(response, HttpStatus.OK);

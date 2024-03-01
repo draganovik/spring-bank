@@ -159,7 +159,7 @@ services:
       - crypto-wallet
       - bank-account
       - currency-exchange
-      - crypto-conversion
+      - currency-conversion
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
