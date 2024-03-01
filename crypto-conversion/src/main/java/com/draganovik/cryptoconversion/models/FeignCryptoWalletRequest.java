@@ -1,10 +1,19 @@
 package com.draganovik.cryptoconversion.models;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class FeignCryptoWalletRequest {
+
+    @NotNull(message = "The quantityBTC cannot be null")
+    @DecimalMin(value = "0.0", message = "The quantityRSD must be greater than or equal to 0")
     private BigDecimal quantityBTC;
+    @NotNull(message = "The quantityETH cannot be null")
+    @DecimalMin(value = "0.0", message = "The quantityRSD must be greater than or equal to 0")
     private BigDecimal quantityETH;
+    @NotNull(message = "The quantityDOGE cannot be null")
+    @DecimalMin(value = "0.0", message = "The quantityRSD must be greater than or equal to 0")
     private BigDecimal quantityDOGE;
 
     public FeignCryptoWalletRequest() {

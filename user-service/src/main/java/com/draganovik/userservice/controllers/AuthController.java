@@ -5,7 +5,6 @@ import com.draganovik.userservice.exceptions.ExtendedExceptions;
 import com.draganovik.userservice.models.RegisterRequest;
 import com.draganovik.userservice.models.RegisterResponse;
 import com.draganovik.userservice.models.ValidateResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +16,11 @@ import java.util.Optional;
 @RequestMapping("/user-service")
 public class AuthController {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
+
+    public AuthController(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest authenticationRequest) throws Exception {

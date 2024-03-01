@@ -9,7 +9,6 @@ import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
 import com.draganovik.currencyconversion.models.FeignBankAccountResponse;
 import com.draganovik.currencyconversion.models.FeignCurrencyExchangeResponse;
 import com.draganovik.currencyconversion.models.NestedFeignBankAccountResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +22,16 @@ import java.math.BigDecimal;
 @RequestMapping("/currency-conversion")
 public class CurrencyConversionController {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final FeignBankAccount feignBankAccount;
+    private final FeignCurrencyExchange feignCurrencyExchange;
 
-    @Autowired
-    private FeignBankAccount feignBankAccount;
-
-    @Autowired
-    private FeignCurrencyExchange feignCurrencyExchange;
+    public CurrencyConversionController(Environment environment, FeignBankAccount feignBankAccount,
+                                        FeignCurrencyExchange feignCurrencyExchange) {
+        this.environment = environment;
+        this.feignBankAccount = feignBankAccount;
+        this.feignCurrencyExchange = feignCurrencyExchange;
+    }
 
     @PostMapping()
     public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {

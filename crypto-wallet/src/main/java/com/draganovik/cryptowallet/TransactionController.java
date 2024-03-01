@@ -3,7 +3,6 @@ package com.draganovik.cryptowallet;
 import com.draganovik.cryptowallet.entities.CryptoWallet;
 import com.draganovik.cryptowallet.entities.Role;
 import com.draganovik.cryptowallet.exceptions.ExtendedExceptions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.Optional;
 @RequestMapping("/crypto-wallet")
 public class TransactionController {
 
-    @Autowired
-    private CryptoWalletRepository cryptoWalletRepository;
+    private final CryptoWalletRepository cryptoWalletRepository;
+
+    public TransactionController(CryptoWalletRepository cryptoWalletRepository) {
+        this.cryptoWalletRepository = cryptoWalletRepository;
+    }
 
     @PostMapping("{email}/withdraw")
     public ResponseEntity<?> requestWithdraw(@PathVariable String email, @RequestParam String currency, @RequestParam BigDecimal amount, HttpServletRequest request) throws Exception {

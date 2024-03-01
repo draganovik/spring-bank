@@ -12,7 +12,6 @@ public class ErrorResponse {
     private String message;
     private Map<String, String> errorDetails = null;
 
-
     public ErrorResponse(int status, String message, ZonedDateTime timestamp) {
         this.status = status;
         this.message = message;

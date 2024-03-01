@@ -41,17 +41,20 @@ public class TradeController {
     @Value("#{'${currencies.fiat.supported}'.split(',')}")
     private List<String> supportedFiatCurrencies;
 
-    public TradeController(TradeExchangeRepository tradeExchangeRepository, FeignCurrencyExchange feignCurrencyExchange, FeignCurrencyConversion feignCurrencyConversion, FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet, Environment environment) {
+    public TradeController(Environment environment, TradeExchangeRepository tradeExchangeRepository,
+                           FeignCurrencyExchange feignCurrencyExchange, FeignCurrencyConversion feignCurrencyConversion,
+                           FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet) {
+        this.environment = environment;
         this.tradeExchangeRepository = tradeExchangeRepository;
         this.feignCurrencyExchange = feignCurrencyExchange;
         this.feignCurrencyConversion = feignCurrencyConversion;
         this.feignBankAccount = feignBankAccount;
         this.feignCryptoWallet = feignCryptoWallet;
-        this.environment = environment;
     }
 
     @PostMapping()
-    public ResponseEntity<?> requestTrade(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
+    public ResponseEntity<?> requestTrade(@RequestParam String from, @RequestParam String to,
+                                          @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
 
         String operatorEmail;
         Role operatorRole;
@@ -73,7 +76,8 @@ public class TradeController {
                 toSupportedFiat = toFiat;
             }
 
-            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromCrypto.name(), toSupportedFiat.name());
+            Optional<TradeExchange> tradeExchangeOptional =
+                    tradeExchangeRepository.findByFromAndToIgnoreCase(fromCrypto.name(), toSupportedFiat.name());
 
             if (tradeExchangeOptional.isEmpty()) {
                 throw new ExtendedExceptions.BadRequestException("No data for conversion from " + from + " to " + to);
@@ -112,7 +116,9 @@ public class TradeController {
                         operatorEmail);
             }
 
-            ResponseEntity<FeignBankAccountResponse> bankAccount = feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+            ResponseEntity<FeignBankAccountResponse> bankAccount =
+                    feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+
             TradeCurrencyResponse response = new TradeCurrencyResponse(
                     new FeignNestedFeignBankAccountResponse(Objects.requireNonNull(bankAccount.getBody())),
                     "Successful! Converted " + quantity + " " + fromCrypto.name() + " to " + toFiat.name() + ".",
@@ -134,18 +140,28 @@ public class TradeController {
                 ResponseEntity<FeignCurrencyExchangeResponse> derivableExchange =
                         feignCurrencyExchange.getExchange(fromFiat.name(), fromSupportedFiat.name());
 
-                feignCurrencyConversion.performConversion(fromFiat.name(), fromSupportedFiat.name(), quantity, operatorRole.name(), operatorEmail);
+                feignCurrencyConversion.performConversion(
+                        fromFiat.name(),
+                        fromSupportedFiat.name(),
+                        quantity,
+                        operatorRole.name(),
+                        operatorEmail);
 
-                supportedQuantity = quantity.multiply(Objects.requireNonNull(derivableExchange.getBody()).getConversionMultiple());
+                supportedQuantity = quantity.multiply(
+                        Objects.requireNonNull(derivableExchange.getBody()).getConversionMultiple()
+                );
             } else {
                 fromSupportedFiat = fromFiat;
                 supportedQuantity = quantity;
             }
 
-            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromSupportedFiat.name(), toCrypto.name());
+            Optional<TradeExchange> tradeExchangeOptional =
+                    tradeExchangeRepository.findByFromAndToIgnoreCase(fromSupportedFiat.name(), toCrypto.name());
 
             if (tradeExchangeOptional.isEmpty()) {
-                throw new ExtendedExceptions.BadRequestException("No data for conversion from " + fromSupportedFiat.name() + " to " + to);
+                throw new ExtendedExceptions.BadRequestException(
+                        "No data for conversion from " + fromSupportedFiat.name() + " to " + to
+                );
             }
 
             try {
@@ -172,7 +188,9 @@ public class TradeController {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
 
-            ResponseEntity<FeignCryptoWalletResponse> cryptoWallet = feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+            ResponseEntity<FeignCryptoWalletResponse> cryptoWallet =
+                    feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+
             TradeCryptoResponse response = new TradeCryptoResponse(
                     new FeignNestedFeignCryptoWalletResponse(Objects.requireNonNull(cryptoWallet.getBody())),
                     "Successful! Converted " + quantity + " " + fromFiat.name() + " to " + toCrypto.name() + ".",
@@ -182,6 +200,8 @@ public class TradeController {
 
         }
 
-        throw new ExtendedExceptions.BadRequestException("Trade with provided parameters: from: " + from + ", to: " + to + "is not supported.");
+        throw new ExtendedExceptions.BadRequestException(
+                "Trade with provided parameters: from: " + from + ", to: " + to + "is not supported."
+        );
     }
 }

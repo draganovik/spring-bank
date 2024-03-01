@@ -25,15 +25,14 @@ public class TransferController {
 
     private final Environment environment;
     private final FeignCryptoWallet feignCryptoWallet;
-
     private final FeignBankAccount feignBankAccount;
-
     private final BigDecimal transferNetAmount = BigDecimal.valueOf(0.99);
 
-    public TransferController(FeignCryptoWallet feignCryptoWallet, FeignBankAccount feignBankAccount, Environment environment) {
+    public TransferController(Environment environment, FeignCryptoWallet feignCryptoWallet,
+                              FeignBankAccount feignBankAccount) {
+        this.environment = environment;
         this.feignCryptoWallet = feignCryptoWallet;
         this.feignBankAccount = feignBankAccount;
-        this.environment = environment;
     }
 
     @PostMapping()
@@ -57,8 +56,13 @@ public class TransferController {
                 Objects.equals(currency, CryptoCode.ETH.name()) ||
                 Objects.equals(currency, CryptoCode.DOGE.name())
         ) {
-            feignCryptoWallet.cryptoWalletWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
-            feignCryptoWallet.cryptoWalletDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
+            feignCryptoWallet.cryptoWalletWithdraw(
+                    currency, quantity, operatorEmail, operatorRole.name(), operatorEmail
+            );
+            feignCryptoWallet.cryptoWalletDeposit(
+                    currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail
+            );
+
         } else if (Objects.equals(currency, FiatCode.EUR.name()) ||
                 Objects.equals(currency, FiatCode.USD.name()) ||
                 Objects.equals(currency, FiatCode.CHF.name()) ||
@@ -67,11 +71,13 @@ public class TransferController {
         ) {
             feignBankAccount.accountExchangeWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
             feignBankAccount.accountExchangeDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
+
         } else {
             throw new ExtendedExceptions.BadRequestException("Provided currency is not supported.");
         }
 
         return new ResponseEntity<>(new TransferResponse("Transaction successful.",
-                to, quantity, operatorEmail, quantity.multiply(transferNetAmount), environment.getProperty("local.server.port")), HttpStatus.OK);
+                to, quantity, operatorEmail, quantity.multiply(transferNetAmount),
+                environment.getProperty("local.server.port")), HttpStatus.OK);
     }
 }

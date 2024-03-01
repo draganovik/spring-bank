@@ -8,7 +8,6 @@ import com.draganovik.cryptowallet.feign.FeignUserService;
 import com.draganovik.cryptowallet.model.CryptoWalletResponse;
 import com.draganovik.cryptowallet.model.FeignBankAccountResponse;
 import com.draganovik.cryptowallet.model.FeignUserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +21,18 @@ import java.util.Optional;
 @RequestMapping("/crypto-wallet")
 public class CryptoWalletController {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final CryptoWalletRepository cryptoWalletRepository;
+    private final FeignUserService feignUserService;
+    private final FeignBankAccount feignBankAccount;
 
-    @Autowired
-    private CryptoWalletRepository cryptoWalletRepository;
-
-    @Autowired
-    private FeignUserService feignUserService;
-
-    @Autowired
-    private FeignBankAccount feignBankAccount;
+    public CryptoWalletController(Environment environment, CryptoWalletRepository cryptoWalletRepository,
+                                  FeignUserService feignUserService, FeignBankAccount feignBankAccount) {
+        this.environment = environment;
+        this.cryptoWalletRepository = cryptoWalletRepository;
+        this.feignUserService = feignUserService;
+        this.feignBankAccount = feignBankAccount;
+    }
 
 
     @GetMapping("self")

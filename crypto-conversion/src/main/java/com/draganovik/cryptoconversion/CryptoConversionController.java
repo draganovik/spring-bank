@@ -9,7 +9,6 @@ import com.draganovik.cryptoconversion.models.CryptoConversionResponse;
 import com.draganovik.cryptoconversion.models.FeignCryptoExchangeResponse;
 import com.draganovik.cryptoconversion.models.FeignCryptoWalletResponse;
 import com.draganovik.cryptoconversion.models.NestedFeignCryptoWalletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +22,17 @@ import java.math.BigDecimal;
 @RequestMapping("/crypto-conversion")
 public class CryptoConversionController {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
-    @Autowired
-    private FeignCryptoWallet cryptoWallet;
+    private final FeignCryptoWallet cryptoWallet;
 
-    @Autowired
-    private FeignCryptoExchange feignCryptoExchange;
+    private final FeignCryptoExchange feignCryptoExchange;
+
+    public CryptoConversionController(Environment environment, FeignCryptoWallet cryptoWallet, FeignCryptoExchange feignCryptoExchange) {
+        this.environment = environment;
+        this.cryptoWallet = cryptoWallet;
+        this.feignCryptoExchange = feignCryptoExchange;
+    }
 
     @PostMapping()
     public ResponseEntity<CryptoConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
