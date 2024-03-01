@@ -9,9 +9,11 @@ import com.draganovik.tradeservice.feign.FeignBankAccount;
 import com.draganovik.tradeservice.feign.FeignCryptoWallet;
 import com.draganovik.tradeservice.feign.FeignCurrencyConversion;
 import com.draganovik.tradeservice.feign.FeignCurrencyExchange;
+import com.draganovik.tradeservice.models.*;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -30,11 +33,8 @@ public class TradeController {
     @Value("#{'${currencies.crypto.suppored}'.split(',')}")
     private List<String> cryptoCurrencies;
 
-    @Value("#{'${currencies.fiat.suppored}'.split(',')}")
+    @Value("#{'${currencies.fiat.supported}'.split(',')}")
     private List<String> supportedFiatCurrencies;
-
-    @Value("#{'${currencies.fiat.derivable}'.split(',')}")
-    private List<String> derivableFiatCurrencies;
 
     private final TradeExchangeRepository tradeExchangeRepository;
 
@@ -69,18 +69,30 @@ public class TradeController {
             throw new ExtendedExceptions.UnauthorizedException("Request is not authorized.");
         }
 
-        if (cryptoCurrencies.contains(from) && supportedFiatCurrencies.contains(to)) {
+        if (cryptoCurrencies.contains(from)) {
             CryptoCode fromCrypto = CryptoCode.valueOf(from);
             FiatCode toFiat = FiatCode.valueOf(to);
+            FiatCode toSupportedFiat;
 
-            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromCrypto.name(), toFiat.name());
+            if (!supportedFiatCurrencies.contains(to)) {
+                toSupportedFiat = FiatCode.EUR;
+            } else {
+                toSupportedFiat = toFiat;
+            }
+
+            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromCrypto.name(), toSupportedFiat.name());
 
             if (tradeExchangeOptional.isEmpty()) {
-                throw new ExtendedExceptions.BadRequestException("No data for conversion from" + from + " to " + to);
+                throw new ExtendedExceptions.BadRequestException("No data for conversion from " + from + " to " + to);
             }
 
             try {
-                feignCryptoWallet.cryptoWalletWithdraw(fromCrypto.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
+                feignCryptoWallet.cryptoWalletWithdraw(
+                        fromCrypto.name(),
+                        quantity,
+                        operatorEmail,
+                        operatorRole.name(),
+                        operatorEmail);
             } catch (FeignException feignException) {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
@@ -89,33 +101,72 @@ public class TradeController {
 
             try {
                 feignBankAccount.accountExchangeDeposit(
-                        toFiat.name(),
+                        toSupportedFiat.name(),
                         depositQuantity,
                         operatorEmail,
                         operatorRole.name(),
                         operatorEmail);
-
             } catch (FeignException feignException) {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
-            return feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
-        } else if (supportedFiatCurrencies.contains(from) && cryptoCurrencies.contains(to)) {
+
+            if (!supportedFiatCurrencies.contains(to)) {
+                feignCurrencyConversion.performConversion(
+                        toSupportedFiat.name(),
+                        toFiat.name(),
+                        depositQuantity,
+                        operatorRole.name(),
+                        operatorEmail);
+            }
+
+            ResponseEntity<FeignBankAccountResponse> bankAccount = feignBankAccount.getBankAccountByCurrentUser(operatorRole.name(), operatorEmail);
+            TradeCurrencyResponse response = new TradeCurrencyResponse(
+                    new FeignNestedFeignBankAccountResponse(Objects.requireNonNull(bankAccount.getBody())),
+                    "Successful! Converted " + quantity + " " + fromCrypto.name() + " to " + toFiat.name() + ".",
+                    environment.getProperty("local.server.port"));
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        }
+
+        if (cryptoCurrencies.contains(to)) {
             FiatCode fromFiat = FiatCode.valueOf(from);
+            FiatCode fromSupportedFiat;
+            BigDecimal supportedQuantity;
             CryptoCode toCrypto = CryptoCode.valueOf(to);
 
-            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromFiat.name(), toCrypto.name());
+            if (!supportedFiatCurrencies.contains(from)) {
+                fromSupportedFiat = FiatCode.EUR;
+
+                ResponseEntity<FeignCurrencyExchangeResponse> derivableExchange =
+                        feignCurrencyExchange.getExchange(fromFiat.name(), fromSupportedFiat.name());
+
+                feignCurrencyConversion.performConversion(fromFiat.name(), fromSupportedFiat.name(), quantity, operatorRole.name(), operatorEmail);
+
+                supportedQuantity = quantity.multiply(Objects.requireNonNull(derivableExchange.getBody()).getConversionMultiple());
+            } else {
+                fromSupportedFiat = fromFiat;
+                supportedQuantity = quantity;
+            }
+
+            Optional<TradeExchange> tradeExchangeOptional = tradeExchangeRepository.findByFromAndToIgnoreCase(fromSupportedFiat.name(), toCrypto.name());
 
             if (tradeExchangeOptional.isEmpty()) {
-                throw new ExtendedExceptions.BadRequestException("No data for conversion from" + from + " to " + to);
+                throw new ExtendedExceptions.BadRequestException("No data for conversion from " + fromSupportedFiat.name() + " to " + to);
             }
 
             try {
-                feignBankAccount.accountExchangeWithdraw(fromFiat.name(), quantity, operatorEmail, operatorRole.name(), operatorEmail);
+                feignBankAccount.accountExchangeWithdraw(
+                        fromSupportedFiat.name(),
+                        supportedQuantity,
+                        operatorEmail,
+                        operatorRole.name(),
+                        operatorEmail);
             } catch (FeignException feignException) {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
 
-            BigDecimal depositQuantity = quantity.multiply(tradeExchangeOptional.get().getConversionMultiple());
+            BigDecimal depositQuantity = supportedQuantity.multiply(tradeExchangeOptional.get().getConversionMultiple());
 
             try {
                 feignCryptoWallet.cryptoWalletDeposit(
@@ -128,10 +179,16 @@ public class TradeController {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
 
-            return feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+            ResponseEntity<FeignCryptoWalletResponse> cryptoWallet = feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+            TradeCryptoResponse response = new TradeCryptoResponse(
+                    new FeignNestedFeignCryptoWalletResponse(Objects.requireNonNull(cryptoWallet.getBody())),
+                    "Successful! Converted " + quantity + " " + fromFiat.name() + " to " + toCrypto.name() + ".",
+                    environment.getProperty("local.server.port"));
 
-        } else {
-            throw new ExtendedExceptions.BadRequestException("Trade with provided parameters: from: " + from + ", to: " + to + "is not supported.");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
         }
+
+        throw new ExtendedExceptions.BadRequestException("Trade with provided parameters: from: " + from + ", to: " + to + "is not supported.");
     }
 }
