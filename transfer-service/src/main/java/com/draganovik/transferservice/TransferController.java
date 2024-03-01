@@ -1,7 +1,7 @@
 package com.draganovik.transferservice;
 
 import com.draganovik.transferservice.entities.CryptoCode;
-import com.draganovik.transferservice.entities.CurrencyCode;
+import com.draganovik.transferservice.entities.FiatCode;
 import com.draganovik.transferservice.entities.Role;
 import com.draganovik.transferservice.exceptions.ExtendedExceptions;
 import com.draganovik.transferservice.feign.FeignBankAccount;
@@ -59,11 +59,11 @@ public class TransferController {
         ) {
             feignCryptoWallet.cryptoWalletWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
             feignCryptoWallet.cryptoWalletDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
-        } else if (Objects.equals(currency, CurrencyCode.EUR.name()) ||
-                Objects.equals(currency, CurrencyCode.USD.name()) ||
-                Objects.equals(currency, CurrencyCode.CHF.name()) ||
-                Objects.equals(currency, CurrencyCode.RSD.name()) ||
-                Objects.equals(currency, CurrencyCode.GBP.name())
+        } else if (Objects.equals(currency, FiatCode.EUR.name()) ||
+                Objects.equals(currency, FiatCode.USD.name()) ||
+                Objects.equals(currency, FiatCode.CHF.name()) ||
+                Objects.equals(currency, FiatCode.RSD.name()) ||
+                Objects.equals(currency, FiatCode.GBP.name())
         ) {
             feignBankAccount.accountExchangeWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
             feignBankAccount.accountExchangeDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);

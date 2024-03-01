@@ -1,6 +1,6 @@
 package com.draganovik.currencyconversion;
 
-import com.draganovik.currencyconversion.entities.CurrencyCode;
+import com.draganovik.currencyconversion.entities.FiatCode;
 import com.draganovik.currencyconversion.entities.Role;
 import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
 import com.draganovik.currencyconversion.feign.FeignBankAccount;
@@ -60,16 +60,16 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        CurrencyCode toCC;
+        FiatCode toCC;
         try {
-            toCC = CurrencyCode.valueOf(to);
+            toCC = FiatCode.valueOf(to);
         } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
         }
 
-        CurrencyCode fromCC;
+        FiatCode fromCC;
         try {
-            fromCC = CurrencyCode.valueOf(from);
+            fromCC = FiatCode.valueOf(from);
         } catch (Exception ex) {
             throw new ExtendedExceptions.BadRequestException("Provided 'from' currency: " + from + " is not supported.");
         }
