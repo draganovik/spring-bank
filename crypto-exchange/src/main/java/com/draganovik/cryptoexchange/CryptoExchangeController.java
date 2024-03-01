@@ -15,18 +15,18 @@ import java.util.Optional;
 @RequestMapping("/crypto-exchange")
 public class CryptoExchangeController {
 
-    private final CryptoExchangeRepository repo;
+    private final CryptoExchangeRepository cryptoExchangeRepository;
 
     private final Environment environment;
 
-    public CryptoExchangeController(Environment environment, CryptoExchangeRepository repo) {
-        this.repo = repo;
+    public CryptoExchangeController(CryptoExchangeRepository repo, Environment environment) {
         this.environment = environment;
+        this.cryptoExchangeRepository = repo;
     }
 
     @GetMapping("/from/{from}/to/{to}")
     public ResponseEntity<CryptoExchangeResponse> getExchange(@PathVariable String from, @PathVariable String to) throws Exception {
-        Optional<CryptoExchange> exchange = repo.findByFromAndToIgnoreCase(from, to);
+        Optional<CryptoExchange> exchange = cryptoExchangeRepository.findByFromAndToIgnoreCase(from, to);
 
         if (exchange.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Can't find exchange rates from " + from + " to " + to);

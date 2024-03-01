@@ -1,7 +1,6 @@
 package com.draganovik.apigateway.configurations;
 
 import com.draganovik.apigateway.authmethods.jwt.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,8 +15,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableWebFluxSecurity
 public class GatewaySecurityConfiguration {
 
-    @Autowired
-    private WebClient.Builder webClientBuilder;
+    private final WebClient.Builder webClientBuilder;
+
+    public GatewaySecurityConfiguration(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+    }
 
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {

@@ -1,6 +1,6 @@
 package com.draganovik.transferservice.entities;
 
-public enum CurrencyCode {
+public enum FiatCode {
     RSD,
     EUR,
     USD,

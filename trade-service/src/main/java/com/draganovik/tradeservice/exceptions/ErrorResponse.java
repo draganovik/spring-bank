@@ -1,4 +1,4 @@
-package com.draganovik.bankaccount.exceptions;
+package com.draganovik.tradeservice.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -11,6 +11,7 @@ public class ErrorResponse {
     private int status;
     private String message;
     private Map<String, String> errorDetails = null;
+
 
     public ErrorResponse(int status, String message, ZonedDateTime timestamp) {
         this.status = status;

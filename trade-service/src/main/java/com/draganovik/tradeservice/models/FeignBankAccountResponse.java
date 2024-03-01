@@ -1,10 +1,9 @@
-package com.draganovik.bankaccount.models;
+package com.draganovik.tradeservice.models;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class BankAccountResponse {
-
+public class FeignBankAccountResponse {
     private UUID id;
     private String email;
     private BigDecimal quantityRSD;
@@ -12,14 +11,15 @@ public class BankAccountResponse {
     private BigDecimal quantityGBP;
     private BigDecimal quantityUSD;
     private BigDecimal quantityCHF;
+
     private String environment;
 
-    public BankAccountResponse() {
+    public FeignBankAccountResponse() {
     }
 
-    public BankAccountResponse(UUID id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
-                               BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
-                               String environment) {
+    public FeignBankAccountResponse(UUID id, String email, BigDecimal quantityRSD, BigDecimal quantityEUR,
+                                    BigDecimal quantityGBP, BigDecimal quantityUSD, BigDecimal quantityCHF,
+                                    String environment) {
         this.setId(id);
         this.setEmail(email);
         this.setQuantityRSD(quantityRSD);

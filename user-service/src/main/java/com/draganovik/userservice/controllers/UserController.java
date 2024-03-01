@@ -9,7 +9,6 @@ import com.draganovik.userservice.feign.FeignBankAccount;
 import com.draganovik.userservice.feign.FeignCryptoWallet;
 import com.draganovik.userservice.models.UserRequest;
 import com.draganovik.userservice.models.UserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,17 +26,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/user-service/users")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final FeignBankAccount feignBankAccount;
+    private final FeignCryptoWallet feignCryptoWallet;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private FeignBankAccount feignBankAccount;
-
-    @Autowired
-    private FeignCryptoWallet feignCryptoWallet;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    public UserController(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository,
+                          FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
+        this.feignBankAccount = feignBankAccount;
+        this.feignCryptoWallet = feignCryptoWallet;
+    }
 
     @PostMapping()
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest userRequest, HttpServletRequest request) throws Exception {

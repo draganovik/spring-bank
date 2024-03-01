@@ -1,6 +1,6 @@
 package com.draganovik.currencyconversion;
 
-import com.draganovik.currencyconversion.entities.CurrencyCode;
+import com.draganovik.currencyconversion.entities.FiatCode;
 import com.draganovik.currencyconversion.entities.Role;
 import com.draganovik.currencyconversion.exceptions.ExtendedExceptions;
 import com.draganovik.currencyconversion.feign.FeignBankAccount;
@@ -9,7 +9,7 @@ import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
 import com.draganovik.currencyconversion.models.FeignBankAccountResponse;
 import com.draganovik.currencyconversion.models.FeignCurrencyExchangeResponse;
 import com.draganovik.currencyconversion.models.NestedFeignBankAccountResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +23,27 @@ import java.math.BigDecimal;
 @RequestMapping("/currency-conversion")
 public class CurrencyConversionController {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final FeignBankAccount feignBankAccount;
+    private final FeignCurrencyExchange feignCurrencyExchange;
 
-    @Autowired
-    private FeignBankAccount feignBankAccount;
-
-    @Autowired
-    private FeignCurrencyExchange feignCurrencyExchange;
+    public CurrencyConversionController(Environment environment, FeignBankAccount feignBankAccount,
+                                        FeignCurrencyExchange feignCurrencyExchange) {
+        this.environment = environment;
+        this.feignBankAccount = feignBankAccount;
+        this.feignCurrencyExchange = feignCurrencyExchange;
+    }
 
     @PostMapping()
-    public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam String from, @RequestParam String to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
+    @RateLimiter(name = "default")
+    public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam FiatCode from, @RequestParam FiatCode to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
         String operatorEmail;
         Role operatorRole;
+
+        if (to == from) {
+            throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
+        }
+
         try {
             operatorRole = Role.valueOf(request.getHeader("X-User-Role"));
             operatorEmail = request.getHeader("X-User-Email");
@@ -60,25 +68,7 @@ public class CurrencyConversionController {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
         }
 
-        CurrencyCode toCC;
-        try {
-            toCC = CurrencyCode.valueOf(to);
-        } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException("Provided 'to' currency: " + to + " is not supported.");
-        }
-
-        CurrencyCode fromCC;
-        try {
-            fromCC = CurrencyCode.valueOf(from);
-        } catch (Exception ex) {
-            throw new ExtendedExceptions.BadRequestException("Provided 'from' currency: " + from + " is not supported.");
-        }
-
-        if (toCC == fromCC) {
-            throw new ExtendedExceptions.BadRequestException("Can't perform conversion to same currency.");
-        }
-
-        ResponseEntity<FeignCurrencyExchangeResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(fromCC.name(), toCC.name());
+        ResponseEntity<FeignCurrencyExchangeResponse> currencyExchangeResponse = feignCurrencyExchange.getExchange(from.name(), to.name());
 
         if (currencyExchangeResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't get currency exchange.");
@@ -92,10 +82,10 @@ public class CurrencyConversionController {
 
         BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(BigDecimal.valueOf(quantity));
 
-        feignBankAccount.accountExchangeWithdraw(fromCC.name(), quantity, bankAccount.getEmail(),
+        feignBankAccount.accountExchangeWithdraw(from.name(), quantity, bankAccount.getEmail(),
                 operatorRole.name(), operatorEmail);
 
-        feignBankAccount.accountExchangeDeposit(toCC.name(), convertedQuantity.doubleValue(), bankAccount.getEmail(),
+        feignBankAccount.accountExchangeDeposit(to.name(), convertedQuantity.doubleValue(), bankAccount.getEmail(),
                 operatorRole.name(), operatorEmail);
 
         bankAccountResponse =
@@ -110,7 +100,7 @@ public class CurrencyConversionController {
 
         CurrencyConversionResponse response = new CurrencyConversionResponse(
                 CCBAResponse,
-                "Successful! Converted " + quantity + " " + fromCC.name() + " to " + toCC.name() + ".",
+                "Successful! Converted " + quantity + " " + from.name() + " to " + to.name() + ".",
                 environment.getProperty("local.server.port"));
 
         return new ResponseEntity<>(response, HttpStatus.OK);

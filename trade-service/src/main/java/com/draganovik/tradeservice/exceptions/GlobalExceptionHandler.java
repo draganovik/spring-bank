@@ -1,4 +1,4 @@
-package com.draganovik.cryptoconversion.exceptions;
+package com.draganovik.tradeservice.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

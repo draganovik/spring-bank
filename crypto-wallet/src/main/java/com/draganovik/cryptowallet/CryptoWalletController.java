@@ -5,16 +5,17 @@ import com.draganovik.cryptowallet.entities.Role;
 import com.draganovik.cryptowallet.exceptions.ExtendedExceptions;
 import com.draganovik.cryptowallet.feign.FeignBankAccount;
 import com.draganovik.cryptowallet.feign.FeignUserService;
+import com.draganovik.cryptowallet.model.CryptoWalletRequest;
 import com.draganovik.cryptowallet.model.CryptoWalletResponse;
 import com.draganovik.cryptowallet.model.FeignBankAccountResponse;
 import com.draganovik.cryptowallet.model.FeignUserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,17 +23,18 @@ import java.util.Optional;
 @RequestMapping("/crypto-wallet")
 public class CryptoWalletController {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final CryptoWalletRepository cryptoWalletRepository;
+    private final FeignUserService feignUserService;
+    private final FeignBankAccount feignBankAccount;
 
-    @Autowired
-    private CryptoWalletRepository cryptoWalletRepository;
-
-    @Autowired
-    private FeignUserService feignUserService;
-
-    @Autowired
-    private FeignBankAccount feignBankAccount;
+    public CryptoWalletController(Environment environment, CryptoWalletRepository cryptoWalletRepository,
+                                  FeignUserService feignUserService, FeignBankAccount feignBankAccount) {
+        this.environment = environment;
+        this.cryptoWalletRepository = cryptoWalletRepository;
+        this.feignUserService = feignUserService;
+        this.feignBankAccount = feignBankAccount;
+    }
 
 
     @GetMapping("self")
@@ -158,7 +160,7 @@ public class CryptoWalletController {
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<CryptoWalletResponse> updateCryptoWallet(@PathVariable String email, @RequestBody CryptoWallet walletRequest, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CryptoWalletResponse> updateCryptoWallet(@PathVariable String email, @RequestBody @Valid CryptoWalletRequest walletRequest, HttpServletRequest request) throws Exception {
 
         Role operatorRole;
         try {

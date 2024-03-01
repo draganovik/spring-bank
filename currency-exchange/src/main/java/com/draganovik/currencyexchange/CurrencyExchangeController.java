@@ -1,7 +1,6 @@
 package com.draganovik.currencyexchange;
 
 import com.draganovik.currencyexchange.exceptions.ExtendedExceptions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +15,17 @@ import java.util.Optional;
 @RequestMapping("/currency-exchange")
 public class CurrencyExchangeController {
 
-    @Autowired
-    private CurrencyExchangeRepository repo;
+    private final CurrencyExchangeRepository currencyExchangeRepository;
+    private final Environment environment;
 
-    @Autowired
-    private Environment environment;
+    public CurrencyExchangeController(Environment environment, CurrencyExchangeRepository currencyExchangeRepository) {
+        this.environment = environment;
+        this.currencyExchangeRepository = currencyExchangeRepository;
+    }
 
     @GetMapping("/from/{from}/to/{to}")
     public ResponseEntity<CurrencyExchangeResponse> getExchange(@PathVariable String from, @PathVariable String to) throws Exception {
-        Optional<CurrencyExchange> exchange = repo.findByFromAndToIgnoreCase(from, to);
+        Optional<CurrencyExchange> exchange = currencyExchangeRepository.findByFromAndToIgnoreCase(from, to);
 
         if (exchange.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Can't find exchange rates from " + from + " to " + to);

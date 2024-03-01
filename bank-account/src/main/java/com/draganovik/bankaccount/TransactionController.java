@@ -3,7 +3,6 @@ package com.draganovik.bankaccount;
 import com.draganovik.bankaccount.entities.BankAccount;
 import com.draganovik.bankaccount.entities.Role;
 import com.draganovik.bankaccount.exceptions.ExtendedExceptions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.Optional;
 @RequestMapping("/bank-account")
 public class TransactionController {
 
-    @Autowired
-    private BankAccountRepository bankAccountRepository;
+    private final BankAccountRepository bankAccountRepository;
+
+    public TransactionController(BankAccountRepository bankAccountRepository) {
+        this.bankAccountRepository = bankAccountRepository;
+    }
 
     @PostMapping("{email}/withdraw")
     public ResponseEntity<?> requestWithdraw(@PathVariable String email, @RequestParam String currency, @RequestParam double amount, HttpServletRequest request) throws Exception {

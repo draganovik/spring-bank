@@ -9,7 +9,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,17 +21,17 @@ import java.util.Optional;
 @Service
 public class JwtService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     @Value("${jwt.secret}")
     private String jwtSecret;
-
     @Value("${jwt.expiration_time}")
     private Integer jwtExpirationTime;
+
+    public JwtService(BCryptPasswordEncoder passwordEncoder, UserRepository userRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+    }
 
     public Optional<RegisterResponse> createToken(RegisterRequest request) {
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
@@ -64,7 +63,11 @@ public class JwtService {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
 
-            return Optional.of(new RegisterResponse(jwtToken, user.getRole(), user.getEmail(), expirationLocalDate, generatedLocalDate));
+            return Optional.of(
+                    new RegisterResponse(
+                            jwtToken, user.getRole(), user.getEmail(), expirationLocalDate, generatedLocalDate
+                    )
+            );
         }
 
         return Optional.empty();
@@ -79,6 +82,7 @@ public class JwtService {
             String email = claims.getBody().get("sub").toString();
             String role = claims.getBody().get("role").toString();
             return Optional.of(new ValidateResponse(Role.valueOf(role), email));
+
         } catch (Exception e) {
             return Optional.empty();
         }

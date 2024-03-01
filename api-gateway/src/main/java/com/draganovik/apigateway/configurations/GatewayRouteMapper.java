@@ -39,4 +39,8 @@ public class GatewayRouteMapper {
     public static void mapRoutesTransferService(RouteLocatorBuilder.Builder rlb) {
         rlb.route(p -> p.path("/transfer-service/**").uri("lb://transfer-service"));
     }
+
+    public static void mapRoutesTradeService(RouteLocatorBuilder.Builder rlb) {
+        rlb.route(p -> p.path("/trade-service/**").uri("lb://trade-service"));
+    }
 }

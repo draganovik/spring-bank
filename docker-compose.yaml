@@ -21,6 +21,7 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - user-service
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -76,6 +77,8 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - bank-account
+      - currency-exchange
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -136,6 +139,8 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - crypto-wallet
+      - crypto-exchange
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -151,6 +156,10 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - crypto-wallet
+      - bank-account
+      - currency-exchange
+      - currency-conversion
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -166,6 +175,8 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - bank-account
+      - crypto-wallet
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/

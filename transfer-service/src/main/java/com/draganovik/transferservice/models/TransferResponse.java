@@ -4,15 +4,13 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 public class TransferResponse {
-    String message;
-    String withdrawAccount;
-    BigDecimal withdrawQuantity;
-    String depositAccount;
-    BigDecimal depositQuantity;
-
     private final ZonedDateTime timestamp = ZonedDateTime.now();
-
     private final String environment;
+    private String message;
+    private String withdrawAccount;
+    private BigDecimal withdrawQuantity;
+    private String depositAccount;
+    private BigDecimal depositQuantity;
 
     public TransferResponse(String message, String withdrawAccount, BigDecimal withdrawQuantity, String depositAccount, BigDecimal depositQuantity, String environment) {
         this.message = message;

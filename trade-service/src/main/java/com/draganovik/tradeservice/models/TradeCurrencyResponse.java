@@ -1,15 +1,15 @@
-package com.draganovik.cryptoconversion.models;
+package com.draganovik.tradeservice.models;
 
 import java.time.ZonedDateTime;
 
-public class CryptoConversionResponse {
+public class TradeCurrencyResponse {
 
     private final ZonedDateTime timestamp = ZonedDateTime.now();
     private final String environment;
     private String message;
-    private NestedFeignCryptoWalletResponse accountBalance;
+    private FeignNestedFeignBankAccountResponse accountBalance;
 
-    public CryptoConversionResponse(NestedFeignCryptoWalletResponse account, String message, String environment) {
+    public TradeCurrencyResponse(FeignNestedFeignBankAccountResponse account, String message, String environment) {
         this.message = message;
         this.accountBalance = account;
         this.environment = environment;
@@ -27,11 +27,11 @@ public class CryptoConversionResponse {
         return timestamp;
     }
 
-    public NestedFeignCryptoWalletResponse getAccountBalance() {
+    public FeignNestedFeignBankAccountResponse getAccountBalance() {
         return accountBalance;
     }
 
-    public void setAccountBalance(NestedFeignCryptoWalletResponse account) {
+    public void setAccountBalance(FeignNestedFeignBankAccountResponse account) {
         this.accountBalance = account;
     }
 
