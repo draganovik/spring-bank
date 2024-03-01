@@ -209,11 +209,12 @@ public class TradeController {
         );
     }
 
-    public ResponseEntity<?> tradeFallbackMethod() {
+    public ResponseEntity<?> tradeFallbackMethod(@RequestParam String from, @RequestParam String to,
+                                                 @RequestParam BigDecimal quantity, HttpServletRequest request, Throwable throwable) throws Exception {
         List<TradeExchange> tradeExchange = tradeExchangeRepository.findAll();
 
         TradeFallbackResponse response = new TradeFallbackResponse(
-                "Returning available exchange from database.",
+                "No change applied. Returning available exchange from database.",
                 tradeExchange
         );
 
