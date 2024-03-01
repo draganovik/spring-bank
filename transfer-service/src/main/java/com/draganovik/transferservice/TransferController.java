@@ -7,6 +7,7 @@ import com.draganovik.transferservice.exceptions.ExtendedExceptions;
 import com.draganovik.transferservice.feign.FeignBankAccount;
 import com.draganovik.transferservice.feign.FeignCryptoWallet;
 import com.draganovik.transferservice.models.TransferResponse;
+import feign.FeignException;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,11 @@ public class TransferController {
                 Objects.equals(currency, CryptoCode.ETH.name()) ||
                 Objects.equals(currency, CryptoCode.DOGE.name())
         ) {
+            try {
+                feignCryptoWallet.getCryptoWalletByCurrentUser("USER", to);
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
+            }
             feignCryptoWallet.cryptoWalletWithdraw(
                     currency, quantity, operatorEmail, operatorRole.name(), operatorEmail
             );
@@ -71,6 +77,11 @@ public class TransferController {
                 Objects.equals(currency, FiatCode.RSD.name()) ||
                 Objects.equals(currency, FiatCode.GBP.name())
         ) {
+            try {
+                feignBankAccount.getBankAccountByCurrentUser("USER", to);
+            } catch (FeignException feignException) {
+                throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
+            }
             feignBankAccount.accountExchangeWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
             feignBankAccount.accountExchangeDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
 

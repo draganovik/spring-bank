@@ -1,0 +1,814 @@
+{
+	"info": {
+		"_postman_id": "e4d472cc-6a79-442e-9515-bc34383abfca",
+		"name": "IT68/2019 - APRSP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8526902"
+	},
+	"item": [
+		{
+			"name": "user-service",
+			"item": [
+				{
+					"name": "/register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"demo@email.com\",\r\n    \"password\": \"TELVAgerlAcHerSu\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/user-service/register",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/validate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/user-service/validate",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/user-service/users",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/{email}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/user-service/users/demo@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"users",
+								"demo@email.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "OWNER",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"mladen@email.com\",\r\n    \"password\": \"mladen00\",\r\n    \"role\": \"ADMIN\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/user-service/users",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/{email}",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "OWNER",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"mladen4@gmail.com\",\r\n    \"password\": \"mladen05\",\r\n    \"role\": \"USER\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/user-service/users/mladen3@gmail.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"users",
+								"mladen3@gmail.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/{email}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/user-service/users/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"user-service",
+								"users",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "currency-exchange",
+			"item": [
+				{
+					"name": "/from/{from}/to/{to}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/currency-exchange/from/RSD/to/EUR",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"currency-exchange",
+								"from",
+								"RSD",
+								"to",
+								"EUR"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "currency-conversion",
+			"item": [
+				{
+					"name": "/",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/currency-conversion?from=EUR&to=GBP&quantity=2",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"currency-conversion"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "EUR"
+								},
+								{
+									"key": "to",
+									"value": "GBP"
+								},
+								{
+									"key": "quantity",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "crypto-conversion",
+			"item": [
+				{
+					"name": "/",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/crypto-conversion?from=BTC&to=ETH&quantity=0.000010",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-conversion"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "BTC"
+								},
+								{
+									"key": "to",
+									"value": "ETH"
+								},
+								{
+									"key": "quantity",
+									"value": "0.000010"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "bank-account",
+			"item": [
+				{
+					"name": "/self",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/bank-account/self",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/bank-account/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}/withdraw",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/bank-account/user@email.com/withdraw?amount=10&currency=RSD",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"user@email.com",
+								"withdraw"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "10"
+								},
+								{
+									"key": "currency",
+									"value": "RSD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}/deposit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/bank-account/user@email.com/deposit?amount=100&currency=RSD",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"user@email.com",
+								"deposit"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "100"
+								},
+								{
+									"key": "currency",
+									"value": "RSD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantityRSD\": 100,\n    \"quantityEUR\": 100,\n    \"quantityGBP\": 100,\n    \"quantityUSD\": 100,\n    \"quantityCHF\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/bank-account/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/bank-account/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"bank-account",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "crypto-wallet",
+			"item": [
+				{
+					"name": "/self",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/self",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}/withdraw",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/user@email.com/withdraw?amount=10&currency=RSD",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"user@email.com",
+								"withdraw"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "10"
+								},
+								{
+									"key": "currency",
+									"value": "RSD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}/deposit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/user@email.com/deposit?amount=100&currency=RSD",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"user@email.com",
+								"deposit"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "100"
+								},
+								{
+									"key": "currency",
+									"value": "RSD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-User-Role",
+								"value": "ADMIN",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantityBTC\": 0.000001,\n    \"quantityETH\": 0.000014,\n    \"quantityDOGE\": 0.0023\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/{email}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/crypto-wallet/user@email.com",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-wallet",
+								"user@email.com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "crypto-exchange",
+			"item": [
+				{
+					"name": "/from/{from}/to/{to}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/crypto-exchange/from/BTC/to/BTC",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"crypto-exchange",
+								"from",
+								"BTC",
+								"to",
+								"BTC"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "trade-service",
+			"item": [
+				{
+					"name": "/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/trade-service?from=EUR&to=BTC&quantity=10",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"trade-service"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "EUR"
+								},
+								{
+									"key": "to",
+									"value": "BTC"
+								},
+								{
+									"key": "quantity",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transfer-service",
+			"item": [
+				{
+					"name": "/",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/transfer-service?currency=EUR&to=user@email.com&quantity=6",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"transfer-service"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "EUR"
+								},
+								{
+									"key": "to",
+									"value": "user@email.com"
+								},
+								{
+									"key": "quantity",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZW1vQGVtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzA5MzAyOTg0LCJleHAiOjE3MDkzODkzODR9.26hK1XnkWsLyxYqgM263cDTrbkWI9JfNnXmu1OPcG5M",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base-url",
+			"value": "http://localhost:8765",
+			"type": "string"
+		},
+		{
+			"key": "base-bank-account-url",
+			"value": "http://localhost:8200",
+			"type": "string"
+		},
+		{
+			"key": "base-currency-conversion-url",
+			"value": "http://localhost:8100",
+			"type": "string"
+		},
+		{
+			"key": "base-currency-exchange-url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "base-crypro-conversion-url",
+			"value": "http://localhost:8500",
+			"type": "string"
+		},
+		{
+			"key": "base-crypro-exchange-url",
+			"value": "http://localhost:8400",
+			"type": "string"
+		},
+		{
+			"key": "base-crypro-wallet-url",
+			"value": "http://localhost:8300",
+			"type": "string"
+		},
+		{
+			"key": "base-trade-service-url",
+			"value": "http://localhost:8600",
+			"type": "string"
+		},
+		{
+			"key": "base-transfer-service-url",
+			"value": "http://localhost:8700",
+			"type": "string"
+		},
+		{
+			"key": "base-user-service-url",
+			"value": "http://localhost:8770",
+			"type": "string"
+		}
+	]
+}
