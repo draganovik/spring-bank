@@ -9,9 +9,9 @@
         <version>2.7.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.draganovik</groupId>
+    <groupId>com.draganovik.aisp</groupId>
     <artifactId>currency-conversion</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>currency-conversion</name>
     <description>Demo project for Spring Boot</description>
     <properties>

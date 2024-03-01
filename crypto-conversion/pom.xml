@@ -10,9 +10,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.draganovik.cryptoconversion</groupId>
+    <groupId>com.draganovik.aisp</groupId>
     <artifactId>crypto-conversion</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <java.version>11</java.version>
