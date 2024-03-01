@@ -11,6 +11,8 @@ import com.draganovik.tradeservice.feign.FeignCurrencyConversion;
 import com.draganovik.tradeservice.feign.FeignCurrencyExchange;
 import com.draganovik.tradeservice.models.*;
 import feign.FeignException;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -53,6 +55,8 @@ public class TradeController {
     }
 
     @PostMapping()
+    @RateLimiter(name = "default")
+    @Retry(name = "tade-service", fallbackMethod = "tradeFallbackMethod")
     public ResponseEntity<?> requestTrade(@RequestParam String from, @RequestParam String to,
                                           @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
 
@@ -203,5 +207,16 @@ public class TradeController {
         throw new ExtendedExceptions.BadRequestException(
                 "Trade with provided parameters: from: " + from + ", to: " + to + "is not supported."
         );
+    }
+
+    public ResponseEntity<?> tradeFallbackMethod() {
+        List<TradeExchange> tradeExchange = tradeExchangeRepository.findAll();
+
+        TradeFallbackResponse response = new TradeFallbackResponse(
+                "Returning available exchange from database.",
+                tradeExchange
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

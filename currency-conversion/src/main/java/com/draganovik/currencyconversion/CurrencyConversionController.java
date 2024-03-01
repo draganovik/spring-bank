@@ -9,6 +9,7 @@ import com.draganovik.currencyconversion.models.CurrencyConversionResponse;
 import com.draganovik.currencyconversion.models.FeignBankAccountResponse;
 import com.draganovik.currencyconversion.models.FeignCurrencyExchangeResponse;
 import com.draganovik.currencyconversion.models.NestedFeignBankAccountResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,7 @@ public class CurrencyConversionController {
     }
 
     @PostMapping()
+    @RateLimiter(name = "default")
     public ResponseEntity<CurrencyConversionResponse> performConversion(@RequestParam FiatCode from, @RequestParam FiatCode to, @RequestParam double quantity, HttpServletRequest request) throws Exception {
         String operatorEmail;
         Role operatorRole;

@@ -7,6 +7,7 @@ import com.draganovik.transferservice.exceptions.ExtendedExceptions;
 import com.draganovik.transferservice.feign.FeignBankAccount;
 import com.draganovik.transferservice.feign.FeignCryptoWallet;
 import com.draganovik.transferservice.models.TransferResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class TransferController {
     }
 
     @PostMapping()
+    @RateLimiter(name = "default")
     public ResponseEntity<TransferResponse> requestTransfer(
             @RequestParam String currency,
             @RequestParam String to,

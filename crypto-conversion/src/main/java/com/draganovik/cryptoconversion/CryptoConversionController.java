@@ -9,6 +9,7 @@ import com.draganovik.cryptoconversion.models.CryptoConversionResponse;
 import com.draganovik.cryptoconversion.models.FeignCryptoExchangeResponse;
 import com.draganovik.cryptoconversion.models.FeignCryptoWalletResponse;
 import com.draganovik.cryptoconversion.models.NestedFeignCryptoWalletResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ public class CryptoConversionController {
     }
 
     @PostMapping()
+    @RateLimiter(name = "default")
     public ResponseEntity<CryptoConversionResponse> performConversion(@RequestParam CryptoCode from, @RequestParam CryptoCode to, @RequestParam BigDecimal quantity, HttpServletRequest request) throws Exception {
         String operatorEmail;
         Role operatorRole;
