@@ -13,8 +13,10 @@ import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -24,14 +26,12 @@ import java.math.BigDecimal;
 public class CryptoConversionController {
 
     private final Environment environment;
-
-    private final FeignCryptoWallet cryptoWallet;
-
+    private final FeignCryptoWallet feignCryptoWallet;
     private final FeignCryptoExchange feignCryptoExchange;
 
     public CryptoConversionController(Environment environment, FeignCryptoWallet cryptoWallet, FeignCryptoExchange feignCryptoExchange) {
         this.environment = environment;
-        this.cryptoWallet = cryptoWallet;
+        this.feignCryptoWallet = cryptoWallet;
         this.feignCryptoExchange = feignCryptoExchange;
     }
 
@@ -57,7 +57,7 @@ public class CryptoConversionController {
         }
 
         ResponseEntity<FeignCryptoWalletResponse> cryptoWalletResponse =
-                cryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+                feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
 
         if (cryptoWalletResponse.getStatusCode() != HttpStatus.OK) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
@@ -83,14 +83,14 @@ public class CryptoConversionController {
 
         BigDecimal convertedQuantity = exchange.getConversionMultiple().multiply(quantity);
 
-        this.cryptoWallet.cryptoWalletWithdraw(from.name(), quantity, cryptoWallet.getEmail(),
+        this.feignCryptoWallet.cryptoWalletWithdraw(from.name(), quantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
-        this.cryptoWallet.cryptoWalletDeposit(to.name(), convertedQuantity, cryptoWallet.getEmail(),
+        this.feignCryptoWallet.cryptoWalletDeposit(to.name(), convertedQuantity, cryptoWallet.getEmail(),
                 operatorRole.name(), operatorEmail);
 
         cryptoWalletResponse =
-                this.cryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
+                this.feignCryptoWallet.getCryptoWalletByCurrentUser(operatorRole.name(), operatorEmail);
 
         if (cryptoWalletResponse.getStatusCode() != HttpStatus.OK || cryptoWalletResponse.getBody() == null) {
             throw new ExtendedExceptions.NotFoundException("Can't find account of a current user.");
@@ -105,12 +105,5 @@ public class CryptoConversionController {
                 environment.getProperty("local.server.port"));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<String> handleMissingParams(MissingServletRequestParameterException ex) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        String errorMessage = "Required parameter is missing: " + ex.getParameterName();
-        return new ResponseEntity<>(errorMessage, status);
     }
 }

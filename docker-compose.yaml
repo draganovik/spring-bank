@@ -4,7 +4,7 @@ name: agilne-2022-23-draganovik
 services:
 
   zipkin-server:
-    image: openzipkin/zipkin:2.23
+    image: openzipkin/zipkin:3.1
     ports:
       - "9411:9411"
     networks:
@@ -94,6 +94,7 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - user-service
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
@@ -109,6 +110,8 @@ services:
       - currency-network
     depends_on:
       - naming-server
+      - user-service
+      - bank-account
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
       SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
