@@ -19,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -107,7 +108,23 @@ public class UserController {
 
         User updateUser = existingUser.get();
 
-        updateUser.setEmail(requestUser.getEmail());
+        if (!Objects.equals(updateUser.getEmail(), requestUser.getEmail())) {
+            try {
+                feignBankAccount.updateBankAccountEmail(
+                        existingUser.get().getEmail(),
+                        requestUser.getEmail(),
+                        operatorRole.name());
+
+                feignCryptoWallet.updateCryptoWalletEmail(
+                        existingUser.get().getEmail(),
+                        requestUser.getEmail(),
+                        operatorRole.name());
+            } catch (Exception ignore) {
+            }
+
+            updateUser.setEmail(requestUser.getEmail());
+        }
+
         updateUser.setRole(requestUser.getRole());
         updateUser.setPassword(bCryptPasswordEncoder.encode(requestUser.getPassword()));
 
@@ -148,8 +165,8 @@ public class UserController {
 
         if (deleteUser.get().getRole() == Role.USER) {
             try {
-                feignBankAccount.deleteBankAccount(email);
-                feignCryptoWallet.deleteCryptoWallet(email);
+                feignBankAccount.deleteBankAccount(email, operatorRole.name());
+                feignCryptoWallet.deleteCryptoWallet(email, operatorRole.name());
             } catch (Exception ignored) {
             }
         }
