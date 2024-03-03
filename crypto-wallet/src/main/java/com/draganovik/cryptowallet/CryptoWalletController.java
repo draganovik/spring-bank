@@ -208,4 +208,15 @@ public class CryptoWalletController {
         cryptoWalletRepository.delete(account.get());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/{email}/update-email/{newEmail}")
+    public ResponseEntity<?> updateCryptoWalletEmail(@PathVariable String email, @PathVariable String newEmail) throws Exception {
+        Optional<CryptoWallet> account = cryptoWalletRepository.findByEmail(email);
+        if (account.isEmpty()) {
+            throw new ExtendedExceptions.NotFoundException("There is no account associated with this email.");
+        }
+        account.get().setEmail(newEmail);
+        cryptoWalletRepository.save(account.get());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
