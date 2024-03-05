@@ -1,6 +1,6 @@
 package com.draganovik.apigateway.configurations;
 
-import com.draganovik.apigateway.authmethods.jwt.JwtAuthenticationFilter;
+import com.draganovik.apigateway.webauth.UniversalAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -61,7 +61,7 @@ public class GatewaySecurityConfiguration {
 
                 .and()
                 .securityContextRepository(new WebSessionServerSecurityContextRepository())
-                .addFilterBefore(new JwtAuthenticationFilter(webClientBuilder), SecurityWebFiltersOrder.AUTHORIZATION)
+                .addFilterBefore(new UniversalAuthenticationFilter(webClientBuilder), SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange();
         return http.build();
     }

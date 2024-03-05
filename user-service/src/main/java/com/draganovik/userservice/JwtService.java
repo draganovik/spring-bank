@@ -4,7 +4,7 @@ import com.draganovik.userservice.entities.Role;
 import com.draganovik.userservice.entities.User;
 import com.draganovik.userservice.models.RegisterRequest;
 import com.draganovik.userservice.models.RegisterResponse;
-import com.draganovik.userservice.models.ValidateResponse;
+import com.draganovik.userservice.models.UserValidationResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -73,7 +73,7 @@ public class JwtService {
         return Optional.empty();
     }
 
-    public Optional<ValidateResponse> validateToken(String jwtToken) {
+    public Optional<UserValidationResponse> validateToken(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwtToken);
             if (claims.getBody().getExpiration().before(new Date())) {
@@ -81,7 +81,7 @@ public class JwtService {
             }
             String email = claims.getBody().get("sub").toString();
             String role = claims.getBody().get("role").toString();
-            return Optional.of(new ValidateResponse(Role.valueOf(role), email));
+            return Optional.of(new UserValidationResponse(Role.valueOf(role), email));
 
         } catch (Exception e) {
             return Optional.empty();
