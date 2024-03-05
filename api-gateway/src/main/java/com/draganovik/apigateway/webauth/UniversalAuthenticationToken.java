@@ -1,16 +1,16 @@
-package com.draganovik.apigateway.authmethods.jwt;
+package com.draganovik.apigateway.webauth;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public class JwtAuthenticationToken extends AbstractAuthenticationToken {
+public class UniversalAuthenticationToken extends AbstractAuthenticationToken {
 
     private final Object principal;
     private final Object credentials;
 
-    public JwtAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
+    public UniversalAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;

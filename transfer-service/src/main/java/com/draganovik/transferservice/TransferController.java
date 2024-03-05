@@ -55,21 +55,25 @@ public class TransferController {
             throw new ExtendedExceptions.UnauthorizedException("Request is not authorized.");
         }
 
+        if (Objects.equals(operatorEmail, to)) {
+            throw new ExtendedExceptions.BadRequestException("Can't transfer to the same account.");
+        }
+
         if (Objects.equals(currency, CryptoCode.BTC.name()) ||
                 Objects.equals(currency, CryptoCode.ETH.name()) ||
                 Objects.equals(currency, CryptoCode.DOGE.name())
         ) {
             try {
                 feignCryptoWallet.getCryptoWalletByCurrentUser("USER", to);
+                feignCryptoWallet.cryptoWalletWithdraw(
+                        currency, quantity, operatorEmail, operatorRole.name(), operatorEmail
+                );
+                feignCryptoWallet.cryptoWalletDeposit(
+                        currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail
+                );
             } catch (FeignException feignException) {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
-            feignCryptoWallet.cryptoWalletWithdraw(
-                    currency, quantity, operatorEmail, operatorRole.name(), operatorEmail
-            );
-            feignCryptoWallet.cryptoWalletDeposit(
-                    currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail
-            );
 
         } else if (Objects.equals(currency, FiatCode.EUR.name()) ||
                 Objects.equals(currency, FiatCode.USD.name()) ||
@@ -79,18 +83,18 @@ public class TransferController {
         ) {
             try {
                 feignBankAccount.getBankAccountByCurrentUser("USER", to);
+                feignBankAccount.accountExchangeWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
+                feignBankAccount.accountExchangeDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
             } catch (FeignException feignException) {
                 throw new ExtendedExceptions.BadRequestException(feignException.getMessage());
             }
-            feignBankAccount.accountExchangeWithdraw(currency, quantity, operatorEmail, operatorRole.name(), operatorEmail);
-            feignBankAccount.accountExchangeDeposit(currency, quantity.multiply(transferNetAmount), to, operatorRole.name(), operatorEmail);
 
         } else {
             throw new ExtendedExceptions.BadRequestException("Provided currency is not supported.");
         }
 
         return new ResponseEntity<>(new TransferResponse("Transaction successful.",
-                to, quantity, operatorEmail, quantity.multiply(transferNetAmount),
+                operatorEmail, quantity, to, quantity.multiply(transferNetAmount),
                 environment.getProperty("local.server.port")), HttpStatus.OK);
     }
 }

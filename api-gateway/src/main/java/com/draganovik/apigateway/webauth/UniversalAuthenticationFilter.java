@@ -1,4 +1,4 @@
-package com.draganovik.apigateway.authmethods.jwt;
+package com.draganovik.apigateway.webauth;
 
 import com.draganovik.apigateway.models.UserValidationResponse;
 import org.springframework.http.HttpHeaders;
@@ -14,11 +14,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-public class JwtAuthenticationFilter implements WebFilter {
+public class UniversalAuthenticationFilter implements WebFilter {
 
     private final WebClient webClient;
 
-    public JwtAuthenticationFilter(WebClient.Builder webClientBuilder) {
+    public UniversalAuthenticationFilter(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 
@@ -37,9 +37,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                 .retrieve()
                 .bodyToMono(UserValidationResponse.class) // Assume UserValidationResponse has email and role
                 .flatMap(validationResponse -> {
-                    // Populate the SecurityContext
-                    System.out.println("Validation Response: " + validationResponse.getEmail() + " " + validationResponse.getRole());
-                    Authentication authentication = new JwtAuthenticationToken(
+                    Authentication authentication = new UniversalAuthenticationToken(
                             validationResponse.getEmail(),
                             null,
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + validationResponse.getRole().name()))

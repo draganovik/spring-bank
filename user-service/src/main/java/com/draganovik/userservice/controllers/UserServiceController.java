@@ -24,23 +24,23 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/user-service/users")
-public class UserController {
+@RequestMapping("/user-service")
+public class UserServiceController {
 
     private final UserRepository userRepository;
     private final FeignBankAccount feignBankAccount;
     private final FeignCryptoWallet feignCryptoWallet;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserController(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository,
-                          FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet) {
+    public UserServiceController(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository,
+                                 FeignBankAccount feignBankAccount, FeignCryptoWallet feignCryptoWallet) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.feignBankAccount = feignBankAccount;
         this.feignCryptoWallet = feignCryptoWallet;
     }
 
-    @PostMapping()
+    @PostMapping("/users")
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest userRequest, HttpServletRequest request) throws Exception {
         Role operatorRole;
         try {
@@ -79,7 +79,7 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{email}")
+    @PutMapping("/users/{email}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable @Email @Valid String email, @RequestBody @Valid UserRequest requestUser, HttpServletRequest request) throws Exception {
         Role operatorRole;
         try {
@@ -134,7 +134,7 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/users/{email}")
     public ResponseEntity<?> deleteUserByEmail(@PathVariable @Email @Valid String email, HttpServletRequest request) throws Exception {
         Role operatorRole;
         try {
@@ -174,7 +174,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping()
+    @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers(HttpServletRequest request) throws Exception {
         Role operatorRole;
         try {
@@ -194,7 +194,7 @@ public class UserController {
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/users/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable @Email @Valid String email, HttpServletRequest request) throws Exception {
         Role operatorRole;
         try {
