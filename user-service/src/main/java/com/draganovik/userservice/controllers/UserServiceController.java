@@ -92,14 +92,14 @@ public class UserServiceController {
             throw new ExtendedExceptions.ForbiddenException("Only OWNER and ADMIN can perform this operation.");
         }
 
-        if (operatorRole == Role.ADMIN && requestUser.getRole() != Role.USER) {
-            throw new ExtendedExceptions.ForbiddenException("ADMIN can only update USER profiles.");
-        }
-
         Optional<User> existingUser = userRepository.findByEmail(email);
 
         if (existingUser.isEmpty()) {
             throw new ExtendedExceptions.NotFoundException("Can't find requested user profile.");
+        }
+
+        if (operatorRole == Role.ADMIN && (requestUser.getRole() != Role.USER || existingUser.get().getRole() != Role.USER)) {
+            throw new ExtendedExceptions.ForbiddenException("ADMIN can only update USER profiles.");
         }
 
         if (requestUser.getRole() == Role.OWNER && existingUser.get().getRole() != Role.OWNER) {
