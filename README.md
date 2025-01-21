@@ -2,7 +2,7 @@
 **Academic Year**: 2022/23  
 **Technologies Used**: Maven, Java, Docker, H2 in-memory Database
 
-![Screenshot 2024-03-02 045120](https://github.com/IIS-APRSP-2022-2023/agilne-2022-23-draganovik/assets/15861333/46b3b7fc-8777-41c6-8086-1e77b362dad3)
+![Screenshot 2024-03-02 045120](https://github.com/user-attachments/assets/0fc802c7-e661-48e0-8ef4-98de2c79f078)
 
 ### Project Overview:
 This project focuses on developing a microservices-based application that facilitates the exchange of both **fiat currencies** and **cryptocurrencies**. The application architecture is built around microservices to ensure scalability, modularity, and ease of maintenance. The core functionalities include currency conversion, managing user roles, and handling financial transactions for fiat and crypto assets.
