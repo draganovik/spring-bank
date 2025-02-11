@@ -24,7 +24,7 @@ services:
       - user-service
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   naming-server:
     image: draganovik/naming-server:latest
@@ -49,7 +49,7 @@ services:
       - naming-server
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   currency-exchange:
     image: draganovik/currency-exchange:latest
@@ -64,7 +64,7 @@ services:
       - naming-server
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   currency-conversion:
     image: draganovik/currency-conversion:latest
@@ -81,7 +81,7 @@ services:
       - currency-exchange
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   bank-account:
     image: draganovik/bank-account:latest
@@ -97,7 +97,7 @@ services:
       - user-service
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   crypto-wallet:
     image: draganovik/crypto-wallet:latest
@@ -114,7 +114,7 @@ services:
       - bank-account
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   crypto-exchange:
     image: draganovik/crypto-exchange:latest
@@ -129,7 +129,7 @@ services:
       - naming-server
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   crypto-conversion:
     image: draganovik/crypto-conversion:latest
@@ -146,7 +146,7 @@ services:
       - crypto-exchange
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   trade-service:
     image: draganovik/trade-service:latest
@@ -165,7 +165,7 @@ services:
       - currency-conversion
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
   transfer-service:
     image: draganovik/transfer-service:latest
@@ -182,7 +182,7 @@ services:
       - crypto-wallet
     environment:
       EUREKA.CLIENT.SERVICE-URL.DEFAULTZONE: http://naming-server:8761/eureka
-      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411/
+      SPRING.ZIPKIN.BASEURL: http://zipkin-server:9411
 
 networks:
   currency-network:
